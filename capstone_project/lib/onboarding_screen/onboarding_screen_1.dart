@@ -21,7 +21,7 @@ class OnboardingScreen1 extends StatelessWidget {
               width: 367,
             ),
             const Text(
-              'Handwriting Recognition 1',
+              'Handwriting Recognition',
               style: TextStyle(
                 color: Color.fromARGB(255, 111, 112, 231),
                 fontSize: 24,

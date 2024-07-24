@@ -1,3 +1,5 @@
+import 'package:capstone_project/dummy_signin_screen.dart';
+import 'package:capstone_project/dummy_signup_screen.dart';
 import 'package:flutter/material.dart';
 
 class SigninSignupScreen extends StatefulWidget {
@@ -51,7 +53,14 @@ class _SigninSignupScreenState extends State<SigninSignupScreen> {
                     height: 80,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DummySigninScreen(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 180, 177, 243),
                       minimumSize: const Size(280, 44),
@@ -75,7 +84,14 @@ class _SigninSignupScreenState extends State<SigninSignupScreen> {
                     height: 10,
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DummySignupScreen(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Create an account',
                       style: TextStyle(
