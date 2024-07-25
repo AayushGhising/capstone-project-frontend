@@ -1,5 +1,5 @@
-import 'package:capstone_project/dummy_signin_screen.dart';
-import 'package:capstone_project/dummy_signup_screen.dart';
+import 'package:capstone_project/sign_in.dart';
+import 'package:capstone_project/sign_up.dart';
 import 'package:flutter/material.dart';
 
 class SigninSignupScreen extends StatefulWidget {
@@ -57,7 +57,7 @@ class _SigninSignupScreenState extends State<SigninSignupScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DummySigninScreen(),
+                          builder: (context) => SignIn(),
                         ),
                       );
                     },
@@ -88,7 +88,7 @@ class _SigninSignupScreenState extends State<SigninSignupScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DummySignupScreen(),
+                          builder: (context) => const SignUp(),
                         ),
                       );
                     },
