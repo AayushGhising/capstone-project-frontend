@@ -73,6 +73,7 @@ flutter:
     - assets/images/logBack.png
     - assets/images/SignBack.png
     - assets/images/BackButton.png
+    - assets/images/stethescope.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

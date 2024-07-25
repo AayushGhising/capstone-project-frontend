@@ -72,7 +72,7 @@ class SignIn extends StatelessWidget {
                       hintText: 'Password',
                       obscureText: true,
                     ),
-                    const SizedBox(height: 0),
+
                     //forgot password
                     const Padding(
                       padding: EdgeInsets.all(25.0),
@@ -82,7 +82,7 @@ class SignIn extends StatelessWidget {
                           Text(
                             'Forgot Password?',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 48, 48, 48),
+                              color: Colors.blue,
                               fontFamily: 'Lato',
                               fontSize: 16,
                             ),
@@ -90,10 +90,10 @@ class SignIn extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 0),
                     //sign in button
                     MyButton(
                       onTap: signUserIn,
+                      label: 'Sign In',
                     ),
 
                     //or continue with
