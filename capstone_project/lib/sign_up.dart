@@ -1,6 +1,8 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
+import 'package:capstone_project/sign_in.dart';
+import 'package:capstone_project/verification.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatelessWidget {
@@ -13,7 +15,15 @@ class SignUp extends StatelessWidget {
   final confirmPasswordController = TextEditingController();
 
   //Sign user up method
-  void signUserUp() {}
+  void signUserUp(BuildContext context) {
+    //logic for signing up user here
+    // validare the inputs
+    //navigate to the verification page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Verification()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +122,7 @@ class SignUp extends StatelessWidget {
                       ),
                     ),
                     MyButton(
-                      onTap: signUserUp,
+                      onTap: () => signUserUp(context),
                       label: 'Sign Up',
                     ),
                     //or continue with
@@ -164,16 +174,24 @@ class SignUp extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     //dont have an account yet?
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Don't have an account yet?"),
-                        SizedBox(width: 5),
-                        Text(
-                          'Register Now',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+                        const Text("Already have an account?"),
+                        const SizedBox(width: 5),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignIn()),
+                            );
+                          },
+                          child: const Text(
+                            'Sign In here',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
