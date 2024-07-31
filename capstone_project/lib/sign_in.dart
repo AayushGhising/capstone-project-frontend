@@ -1,3 +1,4 @@
+import 'package:capstone_project/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/my_button.dart';
@@ -11,7 +12,7 @@ class SignIn extends StatelessWidget {
   final passwordController = TextEditingController();
 
   //sign user in method
-  void signUserIn() {}
+  void signUserIn() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -145,16 +146,24 @@ class SignIn extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     //dont have an account yet?
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Don't have an account yet?"),
-                        SizedBox(width: 5),
-                        Text(
-                          'Register Now',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+                        const Text("Don't have an account yet?"),
+                        const SizedBox(width: 5),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignUp()),
+                            );
+                          },
+                          child: const Text(
+                            'Register Now',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
