@@ -1,13 +1,60 @@
+import 'dart:async';
+
 import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
 
-class Verification extends StatelessWidget {
-  TextEditingController txt1 = TextEditingController();
-  TextEditingController txt2 = TextEditingController();
-  TextEditingController txt3 = TextEditingController();
-  TextEditingController txt4 = TextEditingController();
+// ignore: must_be_immutable
+class Verification extends StatefulWidget {
+  const Verification({super.key});
+  @override
+  _VerificationState createState() => _VerificationState();
+}
 
-  Verification({super.key});
+class _VerificationState extends State<Verification> {
+  int resendTime = 60;
+  late Timer countdownTimer;
+
+  final List<TextEditingController> controllers =
+      List.generate(4, (_) => TextEditingController());
+
+  @override
+  void initState() {
+    startTimer();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    stopTimer();
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void startTimer() {
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (resendTime > 0) {
+          resendTime--;
+        } else {
+          stopTimer();
+        }
+      });
+    });
+  }
+
+  void stopTimer() {
+    countdownTimer?.cancel();
+  }
+
+  void resendCode() {
+    print('Resending code...');
+    setState(() {
+      resendTime = 60;
+      startTimer();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +67,7 @@ class Verification extends StatelessWidget {
             children: [
               Center(
                 child: Image.asset('assets/images/verify.png',
-                    height: 400, width: 400),
+                    height: 400, width: 400, fit: BoxFit.contain),
               ),
               const Text(
                 'Verify your Email',
@@ -30,7 +77,7 @@ class Verification extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const Text(
                 'Please enter the 4 digit code sent to your email.',
                 style: TextStyle(
@@ -39,27 +86,53 @@ class Verification extends StatelessWidget {
                   fontSize: 16,
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  myInputBox(context, txt1),
-                  myInputBox(context, txt2),
-                  myInputBox(context, txt3),
-                  myInputBox(context, txt4),
-                ],
-              ),
-              const SizedBox(height: 50),
-              const Center(
-                child: Text(
-                  'Resend Code',
-                  style: TextStyle(
-                      fontFamily: 'Lato',
-                      color: Color.fromARGB(255, 111, 112, 231),
-                      fontSize: 24),
+                children: List.generate(
+                  4,
+                  (index) =>
+                      myInputBox(context, controllers[index], index == 3),
                 ),
               ),
-              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Did not recieve a code yet?',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 112, 105, 321),
+                        fontFamily: 'Lato',
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    if (resendTime > 0)
+                      Text(
+                        'You can resend code after $resendTime second(s)',
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 112, 105, 105),
+                          fontFamily: 'Lato',
+                          fontSize: 16,
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: resendCode,
+                        child: const Text(
+                          'Resend Code',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 111, 112, 231),
+                            fontFamily: 'Lato',
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
               MyButton(onTap: () {}, label: 'Confirm')
             ],
           ),
@@ -69,7 +142,8 @@ class Verification extends StatelessWidget {
   }
 }
 
-Widget myInputBox(BuildContext context, TextEditingController controller) {
+Widget myInputBox(
+    BuildContext context, TextEditingController controller, bool isLast) {
   return Container(
     height: 70,
     width: 60,
@@ -88,7 +162,9 @@ Widget myInputBox(BuildContext context, TextEditingController controller) {
         counterText: '',
       ),
       onChanged: (value) {
-        FocusScope.of(context).nextFocus();
+        if (value.isNotEmpty && !isLast) {
+          FocusScope.of(context).nextFocus();
+        }
       },
     ),
   );
