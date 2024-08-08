@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:capstone_project/components/my_button.dart';
+import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -64,6 +65,7 @@ class _VerificationState extends State<Verification> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Center(
                 child: Image.asset('assets/images/verify.png',
@@ -133,7 +135,64 @@ class _VerificationState extends State<Verification> {
                 ),
               ),
               const SizedBox(height: 30),
-              MyButton(onTap: () {}, label: 'Confirm')
+              MyButton(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 115),
+                                    Image.asset(
+                                      'assets/images/tick.png',
+                                      height: 35,
+                                      width: 35,
+                                    ),
+                                    const SizedBox(width: 80),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => SignIn()),
+                                        );
+                                      },
+                                      child: Image.asset(
+                                        'assets/images/cross.png',
+                                        height: 25,
+                                        width: 25,
+                                      )g,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 15),
+                                const Text(
+                                  'Verified',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Lato',
+                                      fontSize: 28),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Yahoo!  You have successfully verified the account',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 108, 84, 84),
+                                      fontFamily: 'Lato',
+                                      fontSize: 16),
+                                )
+                              ],
+                            ),
+                          );
+                        });
+                  },
+                  label: 'Confirm')
             ],
           ),
         ),
