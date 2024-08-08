@@ -121,9 +121,11 @@ class SignUp extends StatelessWidget {
                         ],
                       ),
                     ),
-                    MyButton(
-                      onTap: () => signUserUp(context),
-                      label: 'Sign Up',
+                    IntrinsicWidth(
+                      child: MyButton(
+                        onPressed: () => signUserUp(context),
+                        label: 'Sign Up',
+                      ),
                     ),
                     //or continue with
 

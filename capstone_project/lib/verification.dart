@@ -135,64 +135,70 @@ class _VerificationState extends State<Verification> {
                 ),
               ),
               const SizedBox(height: 30),
-              MyButton(
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
+              Center(
+                child: IntrinsicWidth(
+                  child: MyButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const SizedBox(width: 115),
-                                    Image.asset(
-                                      'assets/images/tick.png',
-                                      height: 35,
-                                      width: 35,
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 115),
+                                        Image.asset(
+                                          'assets/images/tick.png',
+                                          height: 35,
+                                          width: 35,
+                                        ),
+                                        const SizedBox(width: 80),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SignIn()),
+                                            );
+                                          },
+                                          child: Image.asset(
+                                            'assets/images/cross.png',
+                                            height: 25,
+                                            width: 25,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 80),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => SignIn()),
-                                        );
-                                      },
-                                      child: Image.asset(
-                                        'assets/images/cross.png',
-                                        height: 25,
-                                        width: 25,
-                                      ),
+                                    const SizedBox(height: 15),
+                                    const Text(
+                                      'Verified',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Lato',
+                                          fontSize: 28),
                                     ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      'Yahoo!  You have successfully verified the account',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color:
+                                              Color.fromARGB(255, 108, 84, 84),
+                                          fontFamily: 'Lato',
+                                          fontSize: 16),
+                                    )
                                   ],
                                 ),
-                                const SizedBox(height: 15),
-                                const Text(
-                                  'Verified',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Lato',
-                                      fontSize: 28),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'Yahoo!  You have successfully verified the account',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Color.fromARGB(255, 108, 84, 84),
-                                      fontFamily: 'Lato',
-                                      fontSize: 16),
-                                )
-                              ],
-                            ),
-                          );
-                        });
-                  },
-                  label: 'Confirm')
+                              );
+                            });
+                      },
+                      label: 'Confirm'),
+                ),
+              )
             ],
           ),
         ),
