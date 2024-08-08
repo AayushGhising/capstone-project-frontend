@@ -166,7 +166,7 @@ class _VerificationState extends State<Verification> {
                                         'assets/images/cross.png',
                                         height: 25,
                                         width: 25,
-                                      )g,
+                                      ),
                                     ),
                                   ],
                                 ),
