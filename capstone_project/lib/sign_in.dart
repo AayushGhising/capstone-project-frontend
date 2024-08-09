@@ -16,7 +16,7 @@ class SignIn extends StatelessWidget {
   void signUserIn(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MyHomePage()),
+      MaterialPageRoute(builder: (context) => const HomePage()),
     );
   }
 

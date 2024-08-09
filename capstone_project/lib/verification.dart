@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 class Verification extends StatefulWidget {
   const Verification({super.key});
   @override
-  _VerificationState createState() => _VerificationState();
+  State<Verification> createState() {
+    return _VerificationState();
+  }
 }
 
 class _VerificationState extends State<Verification> {
@@ -46,7 +48,7 @@ class _VerificationState extends State<Verification> {
   }
 
   void stopTimer() {
-    countdownTimer?.cancel();
+    countdownTimer.cancel();
   }
 
   void resendCode() {
