@@ -104,23 +104,7 @@ class SignUp extends StatelessWidget {
                         controller: confirmPasswordController,
                         hintText: 'Confirm Password',
                         obscureText: true),
-                    //forgot password
-                    const Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontFamily: 'Lato',
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    const SizedBox(height: 30),
                     IntrinsicWidth(
                       child: MyButton(
                         onPressed: () => signUserUp(context),
@@ -128,7 +112,6 @@ class SignUp extends StatelessWidget {
                       ),
                     ),
                     //or continue with
-
                     const SizedBox(height: 10),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25.0),
