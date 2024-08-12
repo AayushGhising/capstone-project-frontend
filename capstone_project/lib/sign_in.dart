@@ -1,3 +1,4 @@
+import 'package:capstone_project/home_page.dart';
 import 'package:capstone_project/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/my_textfield.dart';
@@ -12,7 +13,7 @@ class SignIn extends StatelessWidget {
   final passwordController = TextEditingController();
 
   //sign user in method
-  void signUserIn() async {}
+  void signUserIn(BuildContext context) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,12 @@ class SignIn extends StatelessWidget {
                     ),
                     //sign in button
                     MyButton(
-                      onTap: signUserIn,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomePage()));
+                      },
                       label: 'Sign In',
                     ),
 

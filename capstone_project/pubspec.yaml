@@ -75,6 +75,11 @@ flutter:
     - assets/images/BackButton.png
     - assets/images/stethescope.png
     - assets/images/verify.png
+    - assets/images/luffy.jpg
+    - assets/images/upload_prescription.png
+    - assets/images/prescription_folder.png
+    - assets/images/medication_reminder.png
+    - assets/images/medication_chart.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

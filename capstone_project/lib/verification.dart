@@ -1,5 +1,6 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_project/home_page.dart';
 
 class Verification extends StatelessWidget {
   TextEditingController txt1 = TextEditingController();
@@ -60,7 +61,16 @@ class Verification extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              MyButton(onTap: () {}, label: 'Confirm')
+              MyButton(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ),
+                    );
+                  },
+                  label: 'Confirm')
             ],
           ),
         ),
