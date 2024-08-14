@@ -2,6 +2,7 @@ import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/home_page.dart';
 
+// ignore: must_be_immutable
 class Verification extends StatelessWidget {
   TextEditingController txt1 = TextEditingController();
   TextEditingController txt2 = TextEditingController();

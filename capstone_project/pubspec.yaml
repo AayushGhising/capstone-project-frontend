@@ -80,6 +80,13 @@ flutter:
     - assets/images/prescription_folder.png
     - assets/images/medication_reminder.png
     - assets/images/medication_chart.png
+    - assets/images/upcoming_reminder_pills.png
+    - assets/images/upcoming_reminder_clock.png
+    - assets/images/home_nav.png
+    - assets/images/prescription_nav.png
+    - assets/images/notification_nav.png
+    - assets/images/profile_nav.png
+    - assets/images/camera_nav.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
