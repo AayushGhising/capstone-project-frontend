@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/sign_in.dart';
 import 'package:capstone_project/verification.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SignUp extends StatelessWidget {
   SignUp({super.key});
@@ -23,6 +26,46 @@ class SignUp extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => Verification()),
     );
+  }
+
+  void postData(
+    String email,
+    String full_name,
+    String password,
+    String confirm_password,
+    BuildContext context,
+  ) async {
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/register/'),
+        body: {
+          'email': email,
+          'full_name': full_name,
+          'password': password,
+          'confirm_password': confirm_password,
+        },
+      );
+
+      if (response.statusCode == 201) {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print(data);
+        print('Account Created Successfully');
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Verification()));
+      } else {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print('failed');
+        print(data);
+      }
+    } catch (e) {
+      print(
+        e.toString(),
+      );
+    }
   }
 
   @override
@@ -122,7 +165,15 @@ class SignUp extends StatelessWidget {
                       ),
                     ),
                     MyButton(
-                      onTap: () => signUserUp(context),
+                      onTap: () {
+                        postData(
+                          emailController.text.toString(),
+                          nameController.text.toString(),
+                          passwordController.text.toString(),
+                          confirmPasswordController.text.toString(),
+                          context,
+                        );
+                      },
                       label: 'Sign Up',
                     ),
                     //or continue with

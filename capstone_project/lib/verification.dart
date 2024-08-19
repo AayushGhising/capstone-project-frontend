@@ -1,5 +1,8 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_project/home_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Verification extends StatelessWidget {
   TextEditingController txt1 = TextEditingController();
@@ -8,6 +11,43 @@ class Verification extends StatelessWidget {
   TextEditingController txt4 = TextEditingController();
 
   Verification({super.key});
+
+  void postData(
+    String txt1,
+    String txt2,
+    String txt3,
+    String txt4,
+    BuildContext context,
+  ) async {
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/verify-email/'),
+        body: {
+          'otp': txt1 + txt2 + txt3 + txt4,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print(data);
+        print('Verified Successfully');
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+      } else {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print('failed');
+        print(data);
+      }
+    } catch (e) {
+      print(
+        e.toString(),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +100,17 @@ class Verification extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              MyButton(onTap: () {}, label: 'Confirm')
+              MyButton(
+                  onTap: () {
+                    postData(
+                      txt1.text.toString(),
+                      txt2.text.toString(),
+                      txt3.text.toString(),
+                      txt4.text.toString(),
+                      context,
+                    );
+                  },
+                  label: 'Confirm')
             ],
           ),
         ),

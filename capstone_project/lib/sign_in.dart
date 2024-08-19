@@ -3,13 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/square_tile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:capstone_project/home_page.dart';
 
 class SignIn extends StatelessWidget {
   SignIn({super.key});
 
   //text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  void postData(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/login/'),
+        body: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print(data);
+        print('Logged In Successfully');
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+      } else {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print('failed');
+        print(data);
+      }
+    } catch (e) {
+      print(
+        e.toString(),
+      );
+    }
+  }
 
   //sign user in method
   void signUserIn() async {}
@@ -61,9 +100,9 @@ class SignIn extends StatelessWidget {
 
                     //Username TextFiled
                     MyTextfield(
-                      controller: usernameController,
+                      controller: emailController,
                       obscureText: false,
-                      hintText: 'Username',
+                      hintText: 'Email',
                     ),
 
                     const SizedBox(height: 15),
@@ -93,7 +132,13 @@ class SignIn extends StatelessWidget {
                     ),
                     //sign in button
                     MyButton(
-                      onTap: signUserIn,
+                      onTap: () {
+                        postData(
+                          emailController.text.toString(),
+                          passwordController.text.toString(),
+                          context,
+                        );
+                      },
                       label: 'Sign In',
                     ),
 
