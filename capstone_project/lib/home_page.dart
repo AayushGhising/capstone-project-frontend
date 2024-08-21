@@ -1,4 +1,3 @@
-import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -422,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 10),
                             upcomingReminder(
                                 'Daridorexant, 10mg', '1', '2:05 pm'),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
