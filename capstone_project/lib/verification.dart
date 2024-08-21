@@ -151,7 +151,7 @@ class _VerificationState extends State<Verification> {
                                   children: [
                                     Row(
                                       children: [
-                                        const SizedBox(width: 115),
+                                        const SizedBox(width: 125),
                                         Image.asset(
                                           'assets/images/tick.png',
                                           height: 35,
