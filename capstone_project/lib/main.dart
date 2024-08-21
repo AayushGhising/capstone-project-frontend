@@ -6,11 +6,9 @@ import 'package:capstone_project/signin_signup_screen.dart';
 import 'package:capstone_project/home_page.dart';
 
 void main() {
-  runApp(
-    const MaterialApp(
-      home: Scaffold(
-        body: LoadingScreen(),
-      ),
+  runApp(const MaterialApp(
+    home: Scaffold(
+      body: LoadingScreen(),
     ),
-  );
+  ));
 }

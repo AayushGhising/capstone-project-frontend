@@ -10,7 +10,7 @@ class SignUp extends StatelessWidget {
 //text editing controllers
   final nameController = TextEditingController();
   final emailController = TextEditingController();
-  final phoneNumnerController = TextEditingController();
+  final phoneNumberController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -89,7 +89,7 @@ class SignUp extends StatelessWidget {
                     //Phone Number textfield
                     const SizedBox(height: 15),
                     MyTextfield(
-                        controller: phoneNumnerController,
+                        controller: phoneNumberController,
                         hintText: 'Phone Number',
                         obscureText: false),
                     //password textfield
