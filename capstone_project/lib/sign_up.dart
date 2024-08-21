@@ -10,7 +10,7 @@ class SignUp extends StatelessWidget {
 //text editing controllers
   final nameController = TextEditingController();
   final emailController = TextEditingController();
-  final phoneNumnerController = TextEditingController();
+  final phoneNumberController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -89,7 +89,7 @@ class SignUp extends StatelessWidget {
                     //Phone Number textfield
                     const SizedBox(height: 15),
                     MyTextfield(
-                        controller: phoneNumnerController,
+                        controller: phoneNumberController,
                         hintText: 'Phone Number',
                         obscureText: false),
                     //password textfield
@@ -104,29 +104,14 @@ class SignUp extends StatelessWidget {
                         controller: confirmPasswordController,
                         hintText: 'Confirm Password',
                         obscureText: true),
-                    //forgot password
-                    const Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontFamily: 'Lato',
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 30),
+                    IntrinsicWidth(
+                      child: MyButton(
+                        onPressed: () => signUserUp(context),
+                        label: 'Sign Up',
                       ),
                     ),
-                    MyButton(
-                      onTap: () => signUserUp(context),
-                      label: 'Sign Up',
-                    ),
                     //or continue with
-
                     const SizedBox(height: 10),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25.0),
