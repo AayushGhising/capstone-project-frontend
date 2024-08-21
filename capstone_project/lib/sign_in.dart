@@ -13,7 +13,12 @@ class SignIn extends StatelessWidget {
   final passwordController = TextEditingController();
 
   //sign user in method
-  void signUserIn(BuildContext context) async {}
+  void signUserIn(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +98,11 @@ class SignIn extends StatelessWidget {
                       ),
                     ),
                     //sign in button
-                    MyButton(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomePage()));
-                      },
-                      label: 'Sign In',
+                    IntrinsicWidth(
+                      child: MyButton(
+                        onPressed: () => signUserIn(context),
+                        label: 'Sign In',
+                      ),
                     ),
 
                     //or continue with
