@@ -88,7 +88,8 @@ flutter:
     - assets/images/profile_nav.png
     - assets/images/camera_nav.png
     - assets/images/tick.png
-    - "assets/images/cross.png"
+    - assets/images/cross.png
+    - assets/images/forgotPassword.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
