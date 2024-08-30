@@ -1,6 +1,5 @@
-import 'package:capstone_project/components/my_button.dart';
+import 'package:capstone_project/my_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -537,7 +536,12 @@ class _HomePageState extends State<HomePage> {
 
                           // Account Button
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MyProfile()));
+                            },
                             child: Container(
                               height: 60,
                               width: 60,
