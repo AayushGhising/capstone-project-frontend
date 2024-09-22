@@ -1,4 +1,4 @@
-import 'package:capstone_project/sign_in.dart';
+import 'package:capstone_project/forgot_password/new_password.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/my_button.dart';
@@ -65,9 +65,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   const Text(
                     'Enter your email address to receive a password reset link.',
                     style: TextStyle(
-                        fontFamily: 'Lato',
-                        fontSize: 18,
-                        color: Color.fromARGB(255, 135, 135, 153)),
+                      fontFamily: 'Lato',
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 135, 135, 153),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                   //Email text field
                   const SizedBox(height: 30),
@@ -78,7 +80,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   //Button
                   const SizedBox(height: 35),
                   IntrinsicWidth(
-                    child: MyButton(onPressed: () {}, label: 'Confirm Mail'),
+                    child: MyButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const NewPassword()));
+                        },
+                        label: 'Confirm Mail'),
                   ),
                 ],
               ),

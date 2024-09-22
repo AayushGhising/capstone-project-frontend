@@ -1,4 +1,4 @@
-import 'package:capstone_project/forgot_password.dart';
+import 'package:capstone_project/forgot_password/forgot_password.dart';
 import 'package:capstone_project/home_page.dart';
 import 'package:capstone_project/sign_up.dart';
 import 'package:flutter/material.dart';

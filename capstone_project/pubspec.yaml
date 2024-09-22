@@ -100,6 +100,10 @@ flutter:
     - assets/images/help.png
     - assets/images/logout.png
     - assets/images/user.png
+    - assets/images/newPassword.png
+    - assets/images/sprinkles.png
+    - assets/images/successful.png
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

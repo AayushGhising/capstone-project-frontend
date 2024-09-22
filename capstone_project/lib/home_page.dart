@@ -1,4 +1,4 @@
-import 'package:capstone_project/my_profile.dart';
+import 'package:capstone_project/my_profile/my_profile.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
