@@ -1,5 +1,6 @@
+import 'package:capstone_project/my_profile/my_profile.dart';
+import 'package:capstone_project/scan/scan_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -536,7 +537,12 @@ class _HomePageState extends State<HomePage> {
 
                           // Account Button
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MyProfile()));
+                            },
                             child: Container(
                               height: 60,
                               width: 60,
@@ -563,22 +569,31 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Positioned(
                     top: -30,
-                    child: Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 239, 239, 252),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScanImage(),
+                            ));
+                      },
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 239, 239, 252),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset('assets/images/camera_nav.png'),
                       ),
-                      child: Image.asset('assets/images/camera_nav.png'),
                     ),
                   ),
                 ],
