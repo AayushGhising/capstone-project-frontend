@@ -1,3 +1,4 @@
+import 'package:capstone_project/forgot_password/forgot_password.dart';
 import 'package:capstone_project/home_page.dart';
 import 'package:capstone_project/sign_up.dart';
 import 'package:flutter/material.dart';
@@ -81,17 +82,27 @@ class SignIn extends StatelessWidget {
                     ),
 
                     //forgot password
-                    const Padding(
-                      padding: EdgeInsets.all(25.0),
+                    Padding(
+                      padding: const EdgeInsets.all(25.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontFamily: 'Lato',
-                              fontSize: 16,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ForgotPassword()),
+                              );
+                            },
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontFamily: 'Lato',
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ],
