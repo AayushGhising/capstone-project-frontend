@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_project/scan/result.dart';
 
 class ScannedImagePreview extends StatefulWidget {
   ScannedImagePreview(this.file, {super.key});
@@ -27,7 +28,7 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Crop Image',
-          toolbarColor: Color.fromARGB(255, 111, 112, 231),
+          toolbarColor: const Color.fromARGB(255, 111, 112, 231),
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
@@ -66,12 +67,12 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Image Preview',
           style: TextStyle(fontFamily: 'lato', fontWeight: FontWeight.bold),
         ),
         foregroundColor: Colors.white,
-        backgroundColor: Color.fromARGB(255, 180, 177, 243),
+        backgroundColor: const Color.fromARGB(255, 180, 177, 243),
       ),
       body: Container(
         color: const Color.fromARGB(255, 242, 247, 250),
@@ -80,12 +81,12 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
             Container(
               height: ((MediaQuery.of(context).size.width * 4) / 3) + 80,
               width: MediaQuery.of(context).size.width,
-              color: Color.fromARGB(255, 48, 48, 48),
+              color: const Color.fromARGB(255, 48, 48, 48),
               child: Center(
                 child: Image.file(_imageFile),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Row(
@@ -98,7 +99,7 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
                     width: 180,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(255, 111, 112, 231),
+                      color: const Color.fromARGB(255, 111, 112, 231),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -121,13 +122,18 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Result()));
+                  },
                   child: Container(
                     height: 50,
                     width: 180,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(255, 111, 112, 231),
+                      color: const Color.fromARGB(255, 111, 112, 231),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

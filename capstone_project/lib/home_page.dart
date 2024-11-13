@@ -216,7 +216,12 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 // Upload Prescription Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ScanImage()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,

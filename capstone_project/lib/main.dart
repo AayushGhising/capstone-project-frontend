@@ -3,6 +3,7 @@ import 'package:capstone_project/scan/scan_image.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/loading_screen.dart';
 import 'package:capstone_project/help_and_faqs.dart';
+import 'package:capstone_project/scan/result.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,7 @@ Future<void> main() async {
     home: Scaffold(
       body: LoadingScreen(),
       // body: ScanImage(),
+      // body: Result(),
     ),
   ));
 }
