@@ -1,4 +1,6 @@
+import 'package:capstone_project/medication_reminder/add_medication.dart';
 import 'package:capstone_project/my_profile/my_profile.dart';
+import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -256,7 +258,13 @@ class _HomePageState extends State<HomePage> {
 
                                 // Presctiption Floder Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MyPrescriptions()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,
@@ -305,7 +313,13 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 // Upload Prescription Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddMedication()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,

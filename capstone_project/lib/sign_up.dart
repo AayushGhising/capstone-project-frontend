@@ -1,8 +1,8 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
+import 'package:capstone_project/forgot_password/verification.dart';
 import 'package:capstone_project/sign_in.dart';
-import 'package:capstone_project/verification.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatelessWidget {
