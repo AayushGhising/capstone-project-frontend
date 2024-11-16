@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:capstone_project/components/medication_textfield.dart';
 import 'package:capstone_project/components/schedule.dart';
 import 'package:intl/intl.dart';
+import 'package:capstone_project/components/my_button.dart';
 
 class AddMedication extends StatefulWidget {
   const AddMedication({super.key});
@@ -12,6 +13,7 @@ class AddMedication extends StatefulWidget {
 class _AddMedicationState extends State<AddMedication> {
   final TextEditingController _medicineNameController = TextEditingController();
   final TextEditingController _memoController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController();
 
   //date picker
   DateTime? _startDate;
@@ -46,7 +48,7 @@ class _AddMedicationState extends State<AddMedication> {
       body: SingleChildScrollView(
         child: SafeArea(
           child: Container(
-            height: 999,
+            height: 1200,
             width: 500,
             color: const Color.fromARGB(255, 242, 247, 250),
             child: Column(
@@ -85,6 +87,27 @@ class _AddMedicationState extends State<AddMedication> {
                   obscureText: false,
                   labelText: 'Medicine Name',
                   prefixIcon: Image.asset('assets/images/medicine_icon.png'),
+                ),
+                const SizedBox(height: 20),
+                //Reason for medication
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    'Reason for Medication',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 48, 48, 48),
+                        fontFamily: 'Lato',
+                        fontSize: 18),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                //reason text field
+                const SizedBox(height: 15),
+                MedicationTextfield(
+                  controller: _reasonController,
+                  obscureText: false,
+                  labelText: 'Reason for Medication',
+                  prefixIcon: Image.asset('assets/images/reason.png'),
                 ),
                 const SizedBox(height: 20),
                 //Frequency
@@ -432,10 +455,16 @@ class _AddMedicationState extends State<AddMedication> {
                 ),
                 const SizedBox(height: 15),
                 MedicationTextfield(
-                    controller: _memoController,
-                    obscureText: false,
-                    labelText: 'Add memo',
-                    prefixIcon: Image.asset('assets/images/memo.png'))
+                  controller: _memoController,
+                  obscureText: false,
+                  labelText: 'Add memo',
+                  prefixIcon: Image.asset('assets/images/memo.png'),
+                ),
+                const SizedBox(height: 30),
+                //save button
+                Center(
+                    child: IntrinsicWidth(
+                        child: MyButton(onPressed: () {}, label: 'Save')))
               ],
             ),
           ),
