@@ -5,13 +5,105 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/square_tile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SignIn extends StatelessWidget {
+// Storing Tokens in FLutter Secure Storage
+Future<void> storeTokens(String refreshToken, String accessToken) async {
+  const storage = FlutterSecureStorage();
+  await storage.write(key: 'SignInRefreshToken', value: refreshToken);
+  await storage.write(key: 'SignInAccessToken', value: accessToken);
+}
+
+// Fetching Stored Tokens From Flutter Secure Storage
+Future<String?> getSignInRefreshToken() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'SignInRefreshToken');
+}
+
+Future<String?> getSignInAccessToken() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'SignInAccessToken');
+}
+
+class SignIn extends StatefulWidget {
   SignIn({super.key});
+  State<SignIn> createState() => _SignInState();
+}
+
+class _SignInState extends State<SignIn> {
+  // Variable for holding message
+  String message = '';
 
   //text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  // Connecting with backend by using post request API
+  void postData(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
+    try {
+      http.Response response =
+          await http.post(Uri.parse('http://10.0.2.2:8000/api/login/'), body: {
+        'email': email,
+        'password': password,
+      });
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print(data);
+        print('Logged In Successfully');
+
+        // Extracting tokens and login message from the response body
+        String successMessage = data['message'];
+        String refreshToken = data['token']['refresh'];
+        String accessToken = data['token']['access'];
+
+        // Storing tokens in Flutter Secure Storage
+        await storeTokens(refreshToken, accessToken);
+
+        // Updating the message variable to display the success message
+        setState(() {
+          message = successMessage;
+        });
+
+        // Navigating to Home Page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        setState(() {
+          if (data.containsKey('email') && data.containsKey('password')) {
+            message = "Email and Password fields are required";
+          } else if (data.containsKey('email')) {
+            message = "Email field is required";
+          } else if (data.containsKey('password')) {
+            message = "Password field is required";
+          } else if (data.containsKey('non_field_errors')) {
+            message = (data['non_field_errors'] as List).join(',');
+          } else {
+            message = 'Failed to log in';
+          }
+        });
+        print(data);
+        print('Failed to log in');
+      }
+    } catch (e) {
+      print(
+        e.toString(),
+      );
+    }
+  }
 
   //sign user in method
   void signUserIn(BuildContext context) {
@@ -66,11 +158,11 @@ class SignIn extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
 
-                    //Username TextFiled
+                    //Email TextFiled
                     MyTextfield(
-                      controller: usernameController,
+                      controller: emailController,
                       obscureText: false,
-                      hintText: 'Username',
+                      hintText: 'Email',
                     ),
 
                     const SizedBox(height: 15),
@@ -83,7 +175,7 @@ class SignIn extends StatelessWidget {
 
                     //forgot password
                     Padding(
-                      padding: const EdgeInsets.all(25.0),
+                      padding: const EdgeInsets.only(right: 25, top: 25),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -108,10 +200,34 @@ class SignIn extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    // Display the message
+                    if (message.isNotEmpty)
+                      Text(
+                        message,
+                        style: TextStyle(
+                          color: message.contains('Successful!')
+                              ? Colors.green
+                              : Colors.red,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    if (message.isEmpty)
+                      const SizedBox(
+                        height: 14,
+                      ),
+                    const SizedBox(height: 20),
                     //sign in button
                     IntrinsicWidth(
                       child: MyButton(
-                        onPressed: () => signUserIn(context),
+                        onPressed: () {
+                          postData(
+                            emailController.text.toString(),
+                            passwordController.text.toString(),
+                            context,
+                          );
+                        },
                         label: 'Sign In',
                       ),
                     ),

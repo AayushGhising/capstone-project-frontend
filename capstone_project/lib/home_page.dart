@@ -1,6 +1,13 @@
+import 'package:capstone_project/medication_reminder/add_medication.dart';
+import 'dart:convert';
+
 import 'package:capstone_project/my_profile/my_profile.dart';
+import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
 import 'package:capstone_project/scan/scan_image.dart';
+import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +18,73 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Fetching tokens form sign_in file and putting it in a varible
+  final storage = FlutterSecureStorage();
+  Future<String?> accessToken = getSignInAccessToken();
+  Future<String?> refreshToken = getSignInRefreshToken();
+
+  // Stating varibles to hold user data
+  String? profile_pic;
+  String? full_name;
+
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  // Getting user data from the backend using API
+  void fetchData() async {
+    try {
+      String? access_token = await accessToken;
+      http.Response response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/api/get-user-profile/'),
+        headers: {'Authorization': 'Bearer $access_token'},
+      );
+      var data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        setState(
+          () {
+            profile_pic = data['profile_pic'];
+            full_name = data['full_name'];
+          },
+        );
+        print('Successfully fetched user profile and username');
+      } else {
+        String responseCode = data['code'];
+        if (responseCode == "bad_authorization_header") {
+          print("Access token is empty!");
+        }
+        // refreshing the token using refresh token as the access token has expired
+        else {
+          String? refresh_token = await refreshToken;
+          http.Response refreshResponse = await http.post(
+            Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+            body: {'refresh': refresh_token},
+          );
+          if (refreshResponse.statusCode == 200) {
+            var refreshData = json.decode(refreshResponse.body);
+            String newRefreshToken = refreshData['refresh'];
+            String newAccessToken = refreshData['access'];
+            await storage.write(
+                key: 'SignInAccessToken', value: newAccessToken);
+            await storage.write(
+                key: 'SignInRefreshToken', value: newRefreshToken);
+
+            setState(() {
+              accessToken = Future.value(newAccessToken);
+              refreshToken = Future.value(newRefreshToken);
+            });
+            fetchData();
+          } else {
+            print('Failed to refresh token');
+          }
+        }
+      }
+    } catch (e) {
+      print('Error is $e');
+    }
+  }
+
   Widget upcomingReminder(
       String medicineNameAndDosage, String amount, String time) {
     return GestureDetector(
@@ -92,7 +166,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               height: 400,
               color: const Color.fromARGB(255, 180, 177, 243),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.only(
                   bottom: 100,
                   left: 20,
@@ -101,7 +175,10 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/images/luffy.jpg'),
+                      backgroundImage: profile_pic != null
+                          ? NetworkImage(profile_pic!)
+                          : const AssetImage('assets/images/luffy.jpg')
+                              as ImageProvider,
                     ),
                     SizedBox(width: 10),
                     Column(
@@ -117,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Text(
-                          "Monkey D. Luffy",
+                          full_name ?? "Monkey D. Luffy",
                           style: TextStyle(
                             color: Color.fromARGB(255, 48, 48, 48),
                             fontSize: 18,
@@ -262,7 +339,13 @@ class _HomePageState extends State<HomePage> {
 
                                 // Presctiption Floder Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const MyPrescriptions()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,
@@ -311,7 +394,13 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 // Upload Prescription Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AddMedication()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,
