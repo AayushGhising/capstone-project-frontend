@@ -1,6 +1,7 @@
 import 'package:capstone_project/medication_reminder/add_medication.dart';
 import 'package:capstone_project/my_profile/my_profile.dart';
 import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
+import 'package:capstone_project/scan/scan_image.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -217,7 +218,12 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 // Upload Prescription Button
                                 GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ScanImage()));
+                                  },
                                   child: Container(
                                     height: 110,
                                     width: 175,
@@ -435,7 +441,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 10),
                             upcomingReminder(
                                 'Daridorexant, 10mg', '1', '2:05 pm'),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -582,22 +588,31 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Positioned(
                     top: -30,
-                    child: Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 239, 239, 252),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScanImage(),
+                            ));
+                      },
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 239, 239, 252),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset('assets/images/camera_nav.png'),
                       ),
-                      child: Image.asset('assets/images/camera_nav.png'),
                     ),
                   ),
                 ],

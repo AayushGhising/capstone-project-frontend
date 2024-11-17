@@ -1,3 +1,4 @@
+import 'package:capstone_project/help_and_faqs.dart';
 import 'package:capstone_project/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -271,7 +272,10 @@ class _MyProfileState extends State<MyProfile> {
                       fontFamily: 'Lato',
                     ),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HelpAndFaqs()));
+                  },
                 ),
                 //Log Out
                 const SizedBox(height: 15),

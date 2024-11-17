@@ -29,8 +29,6 @@ class _AddMedicationState extends State<AddMedication> {
 
   String _selectedFrequency = 'Every Day';
   int _selectedDays = 1;
-  int _selectedWeek = DateTime.monday;
-  int _selectedDayOfMonth = 1;
 
   final List<String> _dayOfWeek = [
     'Monday',
@@ -42,13 +40,16 @@ class _AddMedicationState extends State<AddMedication> {
     'Sunday',
   ];
 
+  List<int> _selectedDaysOfWeek = [];
+  List<int> _selectedDaysOfMonth = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: SafeArea(
           child: Container(
-            height: 1200,
+            height: 1250,
             width: 500,
             color: const Color.fromARGB(255, 242, 247, 250),
             child: Column(
@@ -162,10 +163,10 @@ class _AddMedicationState extends State<AddMedication> {
                               _selectedDays = 1;
                               break;
                             case 'Day of the Week':
-                              _selectedWeek = DateTime.monday;
+                              _selectedDaysOfWeek = [];
                               break;
                             case 'Day of the Month':
-                              _selectedDayOfMonth = 1;
+                              _selectedDaysOfMonth = [];
                               break;
                             default:
                               break;
@@ -251,34 +252,31 @@ class _AddMedicationState extends State<AddMedication> {
                               offset: const Offset(0, 3))
                         ],
                       ),
-                      child: DropdownButtonFormField(
-                        value: _selectedWeek,
-                        items: _dayOfWeek.asMap().entries.map((entry) {
-                          return DropdownMenuItem<int>(
-                            value: entry.key + 1,
-                            child: Center(
-                              child: Text(
-                                entry.value,
-                                style: const TextStyle(
-                                  color: Color.fromARGB(255, 48, 48, 48),
-                                  fontFamily: 'Lato',
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            _selectedWeek = newValue!;
-                          });
+                      child: ListTile(
+                        title: Text(
+                          _selectedDaysOfWeek.isEmpty
+                              ? "Select Days"
+                              : _selectedDaysOfWeek
+                                  .map((index) => _dayOfWeek[index - 1])
+                                  .join(", "),
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 48, 48, 48),
+                            fontFamily: 'Lato',
+                            fontSize: 16,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_drop_down),
+                        onTap: () async {
+                          await _showMultiSelectDialog(
+                              context: context,
+                              selectedValues: _selectedDaysOfWeek,
+                              options: _dayOfWeek,
+                              onConfirm: (List<int> values) {
+                                setState(() {
+                                  _selectedDaysOfWeek = values;
+                                });
+                              });
                         },
-                        decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 12)),
-                        icon: const Icon(Icons.arrow_drop_down),
-                        isExpanded: true,
                       ),
                     ),
                   ),
@@ -299,33 +297,32 @@ class _AddMedicationState extends State<AddMedication> {
                               offset: const Offset(0, 3))
                         ],
                       ),
-                      child: DropdownButtonFormField(
-                        value: _selectedDayOfMonth,
-                        items: List.generate(31, (index) => index + 1)
-                            .map((int day) {
-                          return DropdownMenuItem<int>(
-                              value: day,
-                              child: Center(
-                                child: Text(
-                                  '$day',
-                                  style: const TextStyle(
-                                      color: Color.fromARGB(255, 48, 48, 48),
-                                      fontFamily: 'Lato',
-                                      fontSize: 16),
-                                ),
-                              ));
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            _selectedDayOfMonth = newValue!;
-                          });
+                      child: ListTile(
+                        title: Text(
+                          _selectedDaysOfMonth.isEmpty
+                              ? "Select Days"
+                              : _selectedDaysOfMonth
+                                  .map((day) => "$day")
+                                  .join(", "),
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 48, 48, 48),
+                            fontFamily: 'Lato',
+                            fontSize: 16,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_drop_down),
+                        onTap: () async {
+                          await _showMultiSelectDialog(
+                              context: context,
+                              selectedValues: _selectedDaysOfMonth,
+                              options:
+                                  List.generate(31, (index) => "${index + 1}"),
+                              onConfirm: (List<int> values) {
+                                setState(() {
+                                  _selectedDaysOfMonth = values;
+                                });
+                              });
                         },
-                        decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 12)),
-                        icon: const Icon(Icons.arrow_drop_down),
-                        isExpanded: true,
                       ),
                     ),
                   ),
@@ -473,6 +470,7 @@ class _AddMedicationState extends State<AddMedication> {
     );
   }
 
+  // Start and end date picker
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -495,4 +493,64 @@ class _AddMedicationState extends State<AddMedication> {
       });
     }
   }
+}
+
+// Multi-Select Dialog
+Future<void> _showMultiSelectDialog({
+  required BuildContext context,
+  required List<int> selectedValues,
+  required List<String> options,
+  required Function(List<int>) onConfirm,
+}) async {
+  List<int> tempSelectedValues = List.from(selectedValues);
+  await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Selected Options"),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 400,
+            ),
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                        options.length,
+                        (index) => CheckboxListTile(
+                            title: Text(options[index]),
+                            value: tempSelectedValues.contains(index + 1),
+                            onChanged: (bool? selected) {
+                              setState(() {
+                                if (selected == true) {
+                                  tempSelectedValues.add(index + 1);
+                                } else {
+                                  tempSelectedValues.remove(index + 1);
+                                }
+                              });
+                            })),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                onConfirm(tempSelectedValues);
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      });
 }
