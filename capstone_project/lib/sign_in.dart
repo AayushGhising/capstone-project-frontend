@@ -27,6 +27,12 @@ Future<String?> getSignInAccessToken() async {
   return await storage.read(key: 'SignInAccessToken');
 }
 
+Future<void> deleteSignInTokens() async {
+  const storage = FlutterSecureStorage();
+  await storage.delete(key: 'SignInRefreshToken');
+  await storage.delete(key: 'SignInAccessToken');
+}
+
 class SignIn extends StatefulWidget {
   SignIn({super.key});
   State<SignIn> createState() => _SignInState();

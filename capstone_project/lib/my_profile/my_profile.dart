@@ -1,8 +1,11 @@
 import 'package:capstone_project/help_and_faqs.dart';
 import 'package:capstone_project/home_page.dart';
+import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:capstone_project/components/alert_dialog.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -13,6 +16,11 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
+  // Accessing flutter secure storage
+  final storage = FlutterSecureStorage();
+
+  Future<void> deleteTokens = deleteSignInTokens();
+
   final ImagePicker _picker = ImagePicker();
   File? _image;
 
@@ -56,6 +64,11 @@ class _MyProfileState extends State<MyProfile> {
           );
         });
   }
+
+  void logout() {}
+
+  // logout dialog box
+  bool tappedYes = false;
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +314,143 @@ class _MyProfileState extends State<MyProfile> {
                       fontFamily: 'Lato',
                     ),
                   ),
-                  onTap: () {},
+                  onTap: () async {
+                    // final action = await AlertDialogs.yesCancelDialog(
+                    //     context, 'Logout', 'are you sure?');
+                    // if (action == DialogsAction.yes) {
+                    //   setState(() => tappedYes = true);
+                    // } else {
+                    //   setState(() => tappedYes = false);
+                    // }
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              // mainAxisAlignment: MainAxisAlignment.center,
+
+                              children: [
+                                const Text(
+                                  'Logout',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Lato',
+                                      fontSize: 28),
+                                ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Are you sure you want to logout?',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                      fontFamily: 'Lato',
+                                      fontSize: 16),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Container(
+                                        height: 40,
+                                        width: 100,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                              255, 251, 251, 251),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color.fromARGB(
+                                                  255, 209, 209, 209),
+                                              offset: const Offset(0, 5),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontFamily: 'lato',
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 40),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await deleteTokens;
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SignIn()));
+                                        Future<String?> accessToken =
+                                            getSignInAccessToken();
+                                        Future<String?> refreshToken =
+                                            getSignInRefreshToken();
+                                        String? access_token =
+                                            await accessToken;
+                                        String? refresh_token =
+                                            await refreshToken;
+                                        print(
+                                            'Accesstoken after deleting: $access_token');
+                                        print(
+                                            'Refreshtoken after deleting: $refresh_token');
+                                      },
+                                      child: Container(
+                                        height: 40,
+                                        width: 100,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                              255, 251, 251, 251),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color.fromARGB(
+                                                  255, 209, 209, 209),
+                                              offset: const Offset(0, 5),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          'Confirm',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontFamily: 'lato',
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
