@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class Schedule extends StatefulWidget {
-  const Schedule({super.key});
+  const Schedule({
+    super.key,
+  });
 
   @override
   _ScheduleState createState() => _ScheduleState();
+
+  // Function to retrieve the current schedules
+  List<Map<String, dynamic>> getSchedules(BuildContext context) {
+    return (context.findAncestorStateOfType<_ScheduleState>()?.schedules ?? []);
+  }
 }
 
 class _ScheduleState extends State<Schedule> {
