@@ -44,6 +44,8 @@ dependencies:
   flutter_multiselect: any
   flutter_secure_storage: any
   http: any
+  cloudinary_flutter: ^1.0.0
+  cloudinary_url_gen: ^1.0.0
 
 dev_dependencies:
   flutter_test:

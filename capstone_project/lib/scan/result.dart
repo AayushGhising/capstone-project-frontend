@@ -1,6 +1,8 @@
 import 'package:capstone_project/scan/scan_image.dart';
+import 'package:capstone_project/scan/scanned_image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/scan/medication_details.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Result extends StatefulWidget {
   const Result({super.key});
@@ -11,6 +13,10 @@ class Result extends StatefulWidget {
 }
 
 class _ResultState extends State<Result> {
+  // Fetching tokens form sign_in file and putting it in a varible
+  final storage = FlutterSecureStorage();
+  Future<String?> analyzedText = getAnalyzedText();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,66 +72,30 @@ class _ResultState extends State<Result> {
                       ),
                       // Text(
                       //     'F.C.T. HEALTH SERVICES, ABUJA. \nGeneral Prescription Form Hospital: \nKGH Ward/Clinic: GOCD')
-                      Text('F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'General Prescription Form\n'
-                          'Hospital: KGH\n'
-                          'Ward/Clinic: GOCD\n'
-                          '----------------------------------------\n'
-                          'Patient Name: John Doe\n'
-                          'Age: 45\n'
-                          'Gender: Male\n'
-                          'Date: 13/11/2024\n'
-                          '----------------------------------------\n'
-                          'Diagnosis: Hypertension\n'
-                          'Prescription:\n'
-                          '1. Amlodipine 5mg - Take one tablet daily\n'
-                          '2. Losartan 50mg - Take one tablet every morning\n'
-                          '3. Atorvastatin 10mg - Take one tablet at night\n'
-                          '----------------------------------------\n'
-                          'Doctor\'s Instructions:\n'
-                          'Avoid high-salt foods\n'
-                          'Exercise regularly\n'
-                          'Monitor blood pressure daily\n'
-                          'Follow up in 2 weeks\n'
-                          '----------------------------------------\n'
-                          'Pharmacy Instructions:\n'
-                          'Ensure patient understands dosage instructions\n'
-                          'Counsel on side effects of medication\n'
-                          '----------------------------------------\n'
-                          'Pharmacist: Jane Smith\n'
-                          'Dispensed Date: 13/11/2024\n'
-                          '----------------------------------------\n'
-                          'Emergency Contact: (555) 123-4567\n'
-                          '----------------------------------------\n'
-                          'Doctor\'s Signature: ________________\n'
-                          'Patient\'s Signature: _______________\n'
-                          '----------------------------------------\n'
-                          'Next Appointment:\n'
-                          'Date: 27/11/2024\n'
-                          'Time: 10:00 AM\n'
-                          '----------------------------------------\n'
-                          'Additional Notes:\n'
-                          'Bring all medications to follow-up appointment.\n'
-                          'Report any unusual side effects immediately.\n'
-                          '----------------------------------------\n'
-                          'F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'Prescription Form (Contd...)\n'
-                          '----------------------------------------\n'
-                          'Hospital Information:\n'
-                          'Address: 123 Health St., Abuja, Nigeria\n'
-                          'Contact: (555) 987-6543\n'
-                          'Website: www.fcthealthservices.ng\n'
-                          '----------------------------------------\n'
-                          'Reminder:\n'
-                          'Take medications as prescribed to manage your condition.\n'
-                          'For any questions, contact your healthcare provider.\n'
-                          '----------------------------------------\n'
-                          'Thank you for choosing F.C.T. Health Services.\n'
-                          'Stay healthy and follow medical advice diligently.\n'
-                          '----------------------------------------\n'
-                          'F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'Your health is our priority.\n'
-                          '----------------------------------------\n'),
+                      // Text(analyzedText.toString()),
+                      FutureBuilder<String?>(
+                        future: analyzedText,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(); // Show loading indicator while waiting
+                          } else if (snapshot.hasError) {
+                            return Text(
+                                'Error: ${snapshot.error}'); // Show error if any
+                          } else if (!snapshot.hasData ||
+                              snapshot.data == null) {
+                            return const Text('No analyzed text available.');
+                          } else {
+                            return Text(
+                              snapshot.data!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'lato',
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),

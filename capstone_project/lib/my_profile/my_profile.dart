@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:capstone_project/components/alert_dialog.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({super.key});
@@ -16,6 +18,11 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
+  // Fetching tokens form sign_in file and putting it in a varible
+  // final storage = FlutterSecureStorage();
+  Future<String?> accessToken = getSignInAccessToken();
+  Future<String?> refreshToken = getSignInRefreshToken();
+
   // Accessing flutter secure storage
   final storage = FlutterSecureStorage();
 
@@ -23,12 +30,218 @@ class _MyProfileState extends State<MyProfile> {
 
   final ImagePicker _picker = ImagePicker();
   File? _image;
+  String? profilePicUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    getProfilePicture();
+  }
+
+  // Chatgpt
+  void postProfilePicture(String profilePicPath) async {
+    try {
+      // Get access token
+      String? access_token = await accessToken;
+
+      // Create a multipart request
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('http://10.0.2.2:8000/api/update-user-profile/'),
+      );
+
+      // Add authorization header
+      request.headers['Authorization'] = 'Bearer $access_token';
+
+      // Add the file to the request
+      request.files.add(await http.MultipartFile.fromPath(
+        'profile_pic', // This should match the field name expected by the backend
+        profilePicPath,
+      ));
+
+      // Send the request
+      var response = await request.send();
+
+      // Check the response
+      if (response.statusCode == 200) {
+        print('Profile Picture Updated Successfully');
+        var responseData = await response.stream.bytesToString();
+        print(jsonDecode(responseData));
+
+        setState(() {
+          getProfilePicture(); // Refresh profile picture
+        });
+
+        // Show success dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(width: 125),
+                      Image.asset(
+                        'assets/images/tick.png',
+                        height: 35,
+                        width: 35,
+                      ),
+                      const SizedBox(width: 80),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Image.asset(
+                          'assets/images/cross.png',
+                          height: 25,
+                          width: 25,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  const Text(
+                    'Updated',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Lato', fontSize: 28),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Yahoo! You have successfully updated your profile picture',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 108, 84, 84),
+                        fontFamily: 'Lato',
+                        fontSize: 16),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      } else {
+        print('Failed to update profile picture');
+        var responseData = await response.stream.bytesToString();
+        print(jsonDecode(responseData));
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // void postProfilePicture(
+  //   String? profile_pic,
+  // ) async {
+  //   try {
+  //     print(profile_pic);
+  //     String? access_token = await accessToken;
+  //     http.Response response = await http.put(
+  //         Uri.parse('http://10.0.2.2:8000/api/update-user-profile/'),
+  //         headers: {
+  //           'Authorization': 'Bearer $access_token',
+  //         },
+  //         body: {
+  //           'profile_pic': profile_pic,
+  //         });
+  //     print(response.statusCode);
+  //     print(response.body.toString());
+  //     if (response.statusCode == 200) {
+  //       var data = jsonDecode(response.body.toString());
+  //       print(data);
+  //       print('Profile Picture Updated Successfully');
+  //       setState(() {
+  //         getProfilePicture();
+  //       });
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Row(
+  //                   children: [
+  //                     const SizedBox(width: 125),
+  //                     Image.asset(
+  //                       'assets/images/tick.png',
+  //                       height: 35,
+  //                       width: 35,
+  //                     ),
+  //                     const SizedBox(width: 80),
+  //                     GestureDetector(
+  //                       onTap: () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                       child: Image.asset(
+  //                         'assets/images/cross.png',
+  //                         height: 25,
+  //                         width: 25,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(height: 15),
+  //                 const Text(
+  //                   'Updated',
+  //                   style: TextStyle(
+  //                       color: Colors.black, fontFamily: 'Lato', fontSize: 28),
+  //                 ),
+  //                 const SizedBox(height: 10),
+  //                 const Text(
+  //                   'Yahoo!  You have successfully updated your profile picture',
+  //                   textAlign: TextAlign.center,
+  //                   style: TextStyle(
+  //                       color: Color.fromARGB(255, 108, 84, 84),
+  //                       fontFamily: 'Lato',
+  //                       fontSize: 16),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     } else {
+  //       var data = jsonDecode(response.body.toString());
+  //       // print(data);
+  //       // print('Failed to update profile pic');
+  //       print('Refreshing token');
+  //       String? refresh_token = await refreshToken;
+  //       http.Response refreshResponse = await http.post(
+  //         Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+  //         body: {'refresh': refresh_token},
+  //       );
+  //       if (refreshResponse.statusCode == 200) {
+  //         var refreshData = json.decode(refreshResponse.body);
+  //         String newRefreshToken = refreshData['refresh'];
+  //         String newAccessToken = refreshData['access'];
+  //         await storage.write(key: 'SignInAccessToken', value: newAccessToken);
+  //         await storage.write(
+  //             key: 'SignInRefreshToken', value: newRefreshToken);
+
+  //         setState(() {
+  //           accessToken = Future.value(newAccessToken);
+  //           refreshToken = Future.value(newRefreshToken);
+  //         });
+  //         postProfilePicture(profilePicUrl);
+  //       } else {
+  //         print('Failed to refresh token');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   //function to pick image
   Future<void> _pickImage(ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
 
     if (pickedFile != null) {
+      postProfilePicture(pickedFile.path);
+      print(pickedFile.path);
       setState(() {
         _image = File(pickedFile.path);
       });
@@ -65,7 +278,49 @@ class _MyProfileState extends State<MyProfile> {
         });
   }
 
-  void logout() {}
+  void getProfilePicture() async {
+    try {
+      String? access_token = await accessToken;
+      http.Response response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/api/get-user-profile/'),
+        headers: {'Authorization': 'Bearer $access_token'},
+      );
+      var data = jsonDecode(response.body.toString());
+      if (response.statusCode == 200) {
+        print(data);
+        setState(
+          () {
+            profilePicUrl = data['profile_pic'];
+          },
+        );
+      } else {
+        String? refresh_token = await refreshToken;
+        http.Response refreshResponse = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+          body: {'refresh': refresh_token},
+        );
+        if (refreshResponse.statusCode == 200) {
+          var refreshData = json.decode(refreshResponse.body);
+          String newRefreshToken = refreshData['refresh'];
+          String newAccessToken = refreshData['access'];
+          await storage.write(key: 'SignInAccessToken', value: newAccessToken);
+          await storage.write(
+              key: 'SignInRefreshToken', value: newRefreshToken);
+
+          setState(() {
+            accessToken = Future.value(newAccessToken);
+            refreshToken = Future.value(newRefreshToken);
+          });
+          getProfilePicture();
+        } else {
+          print('Failed to refresh token');
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+  // void logout() {}
 
   // logout dialog box
   bool tappedYes = false;
@@ -134,11 +389,15 @@ class _MyProfileState extends State<MyProfile> {
                   onTap: _imagePickerOptions,
                   child: CircleAvatar(
                     radius: 64,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!)
+                    backgroundImage: profilePicUrl != null
+                        // ? FileImage(profilePicUrl!)
+                        ? NetworkImage(profilePicUrl!)
                         : const AssetImage('assets/images/user.png')
                             as ImageProvider,
                     backgroundColor: Colors.transparent,
+                    child: profilePicUrl == null
+                        ? CircularProgressIndicator() // Show loading indicator while fetching
+                        : null,
                   ),
                 ),
                 //Username
