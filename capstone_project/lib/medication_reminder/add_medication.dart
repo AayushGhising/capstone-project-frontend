@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:capstone_project/sign_in.dart';
 import "package:flutter/material.dart";
 import 'package:capstone_project/components/medication_textfield.dart';
 import 'package:capstone_project/components/schedule.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:capstone_project/components/my_button.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AddMedication extends StatefulWidget {
   const AddMedication({super.key});
@@ -14,6 +18,127 @@ class _AddMedicationState extends State<AddMedication> {
   final TextEditingController _medicineNameController = TextEditingController();
   final TextEditingController _memoController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
+
+  // Schdeule widget
+  final Schedule _scheduleWidget = const Schedule();
+
+  // fetching the access token from the sign in page
+  final storage = FlutterSecureStorage();
+  Future<String?> accessToken = getSignInAccessToken();
+  Future<String?> refreshToken = getSignInRefreshToken();
+
+// manually added datas
+  Future<void> _saveMedication(
+    String medicationName,
+    String medicationReason,
+    String frequency,
+    DateTime startDate,
+    DateTime? endDate,
+    String memo,
+    bool repeat,
+    List<Map<String, dynamic>> schedules,
+  ) async {
+    try {
+      // getting the access token and refresh token
+      String? access_token = await getSignInAccessToken();
+      String? refresh_token = await getSignInRefreshToken();
+      if (access_token == null) {
+        throw Exception('User is not authenticated.');
+      }
+      // creating frequency data based on the selected type
+      Map<String, dynamic> frequencyData;
+
+      switch (_selectedFrequency) {
+        case 'Every Day':
+          frequencyData = {'type': 'daily'};
+          break;
+        case 'Every X Days':
+          frequencyData = {'type': 'every_x_days', 'value': _selectedDays};
+          break;
+        case 'Day of the Week':
+          frequencyData = {
+            'type': 'day_of_week',
+            'days': _selectedDaysOfWeek
+                .map((index) => _dayOfWeek[index - 1])
+                .toList()
+          };
+          break;
+        case 'Day of the Month':
+          frequencyData = {
+            'type': 'day_of_month',
+            'days': _selectedDaysOfMonth
+          };
+          break;
+        default:
+          throw Exception('Invalid frequency selection.');
+      }
+      // creating the request body
+      final body = {
+        'medication_name': medicationName,
+        'reason_for_medication': medicationReason,
+        'frequency': frequencyData['type'],
+        'every_x_days': frequencyData['value'],
+        'day_of_week': frequencyData['days'],
+        'day_of_month': frequencyData['days'],
+        'start_date': DateFormat('yyyy-MM-dd').format(startDate),
+        'end_date':
+            endDate != null ? DateFormat('yyyy-MM-dd').format(endDate) : null,
+        'memo': memo,
+        'repeat': repeat,
+        'times': schedules,
+      };
+      //print body for debugging
+      print('Request Body: ${jsonEncode(body)}');
+
+      // making the API call
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/reminders/create/'),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 201) {
+        var data = jsonDecode(
+          response.body.toString(),
+        );
+        print(data);
+        print('Added medication successfully!');
+      } else {
+        http.Response refreshResponse = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+          body: {'refresh': refresh_token},
+        );
+        if (refreshResponse.statusCode == 200) {
+          var refreshData = json.decode(refreshResponse.body);
+          String newRefreshToken = refreshData['refresh'];
+          String newAccessToken = refreshData['access'];
+          await storage.write(key: 'SignInAccessToken', value: newAccessToken);
+          await storage.write(
+              key: 'SignInRefreshToken', value: newRefreshToken);
+
+          setState(() {
+            accessToken = Future.value(newAccessToken);
+            refreshToken = Future.value(newRefreshToken);
+          });
+          _saveMedication(medicationName, medicationReason, frequency,
+              startDate, endDate, memo, repeat, schedules);
+        } else {
+          print('Failed to refresh token');
+        }
+
+        print('Failed to add medication. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error is $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   //date picker
   DateTime? _startDate;
@@ -460,8 +585,87 @@ class _AddMedicationState extends State<AddMedication> {
                 const SizedBox(height: 30),
                 //save button
                 Center(
-                    child: IntrinsicWidth(
-                        child: MyButton(onPressed: () {}, label: 'Save')))
+                  child: IntrinsicWidth(
+                    child: MyButton(
+                        onPressed: () async {
+                          // validating the form
+                          if (_medicineNameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter medicine name.'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (_startDate == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please select start date.'),
+                              ),
+                            );
+                            return;
+                          }
+                          //validating frequency
+                          if (_selectedFrequency == 'Every X Days' &&
+                              _selectedDays == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select days.'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (_selectedFrequency == 'Day of the Week' &&
+                              _selectedDaysOfWeek.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select days.'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (_selectedFrequency == 'Day of the Month' &&
+                              _selectedDaysOfMonth.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select days.'),
+                              ),
+                            );
+                            return;
+                          }
+                          // dynamic time and dosage inputs
+                          List<Map<String, dynamic>> schedules =
+                              _scheduleWidget.getSchedules(context);
+                          if (schedules.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('Please add at least one schedule.'),
+                              ),
+                            );
+                          }
+
+                          // Call the save medication function
+                          await _saveMedication(
+                            _medicineNameController.text,
+                            _reasonController.text, //No reason validation
+                            _selectedFrequency,
+                            _startDate!,
+                            _endDate,
+                            _memoController.text, //No memo validation
+                            true,
+                            schedules,
+                          );
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Medication added successfully!')),
+                          );
+                        },
+                        label: 'Save'),
+                  ),
+                ),
               ],
             ),
           ),
