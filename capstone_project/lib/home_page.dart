@@ -2,12 +2,30 @@ import 'package:capstone_project/medication_reminder/add_medication.dart';
 import 'dart:convert';
 
 import 'package:capstone_project/my_profile/my_profile.dart';
-import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
+import 'package:capstone_project/prescription_folder/prescription.dart';
 import 'package:capstone_project/scan/scan_image.dart';
 import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+
+// Storing user data in flutter secure storage
+Future<void> storeUserData(String fullName, String profilePic) async {
+  final storage = FlutterSecureStorage();
+  await storage.write(key: 'full_name', value: fullName);
+  await storage.write(key: 'profile_pic', value: profilePic);
+}
+
+// Fetching Stored Tokens From Flutter Secure Storage
+Future<String?> getUserFullName() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'full_name');
+}
+
+Future<String?> getUserProfilePic() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'profile_pic');
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,9 +45,16 @@ class _HomePageState extends State<HomePage> {
   String? profile_pic;
   String? full_name;
 
+  @override
   void initState() {
     super.initState();
     fetchData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchData(); // Fetch profile picture or update state
   }
 
   // Getting user data from the backend using API
@@ -48,6 +73,7 @@ class _HomePageState extends State<HomePage> {
             full_name = data['full_name'];
           },
         );
+        await storeUserData(full_name!, profile_pic!);
         print('Successfully fetched user profile and username');
       } else {
         String responseCode = data['code'];
@@ -344,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const MyPrescriptions()));
+                                                const Prescription()));
                                   },
                                   child: Container(
                                     height: 110,
@@ -631,12 +657,23 @@ class _HomePageState extends State<HomePage> {
 
                           // Account Button
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const MyProfile()));
+                            // onTap: () {
+                            //   Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (context) => const MyProfile()));
+                            // },
+                            onTap: () async {
+                              bool? isProfileUpdated = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const MyProfile()),
+                              );
+                              if (isProfileUpdated == true) {
+                                fetchData(); // Re-fetch user data if the profile was updated
+                              }
                             },
+
                             child: Container(
                               height: 60,
                               width: 60,
@@ -710,3 +747,215 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+// chat gpt
+
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:provider/provider.dart';
+// import 'user_profile_provider.dart'; // Import your provider file
+// import 'my_profile/my_profile.dart';
+// import 'scan/scan_image.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'sign_in.dart';
+
+// class HomePage extends StatefulWidget {
+//   const HomePage({super.key});
+
+//   @override
+//   State<HomePage> createState() => _HomePageState();
+// }
+
+// class _HomePageState extends State<HomePage> {
+//   // Fetching tokens from FlutterSecureStorage
+//   final storage = FlutterSecureStorage();
+//   Future<String?> accessToken = getSignInAccessToken();
+
+//   @override
+//   void didChangeDependencies() {
+//     super.didChangeDependencies();
+//     final userProfileProvider =
+//         Provider.of<UserProfileProvider>(context, listen: false);
+
+//     accessToken.then((token) {
+//       if (token != null) {
+//         userProfileProvider.fetchUserProfile(token);
+//       } else {
+//         print('Access token is null.');
+//       }
+//     });
+//   }
+
+//   Widget buildCategoryButton(
+//       String line1, String line2, String imagePath, VoidCallback onTap) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         height: 110,
+//         width: 175,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10),
+//           boxShadow: const [
+//             BoxShadow(
+//               color: Color.fromARGB(255, 212, 212, 212),
+//               offset: Offset(0, 10),
+//               blurRadius: 10.0,
+//               spreadRadius: -2,
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Image.asset(imagePath),
+//             Text(line1, style: const TextStyle(fontFamily: 'Lato')),
+//             Text(line2, style: const TextStyle(fontFamily: 'Lato')),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final userProfileProvider = Provider.of<UserProfileProvider>(context);
+
+//     return Scaffold(
+//       body: Stack(
+//         children: [
+//           Container(
+//             height: 400,
+//             color: const Color.fromARGB(255, 180, 177, 243),
+//             child: Padding(
+//               padding: const EdgeInsets.only(bottom: 100, left: 20),
+//               child: Row(
+//                 children: [
+//                   CircleAvatar(
+//                     radius: 30,
+//                     backgroundImage: userProfileProvider.profilePicUrl != null
+//                         ? NetworkImage(userProfileProvider.profilePicUrl!)
+//                         : const AssetImage('assets/images/user.png')
+//                             as ImageProvider,
+//                   ),
+//                   const SizedBox(width: 10),
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       const Text(
+//                         "Welcome!",
+//                         style: TextStyle(fontSize: 18, fontFamily: 'Lato'),
+//                       ),
+//                       Text(
+//                         userProfileProvider.fullName ?? "User",
+//                         style: const TextStyle(
+//                             fontSize: 18,
+//                             fontFamily: 'Lato',
+//                             fontWeight: FontWeight.bold),
+//                       ),
+//                     ],
+//                   )
+//                 ],
+//               ),
+//             ),
+//           ),
+//           Column(
+//             children: [
+//               const SizedBox(height: 200),
+//               Expanded(
+//                 child: Container(
+//                   decoration: const BoxDecoration(
+//                     color: Color.fromARGB(255, 242, 247, 250),
+//                     borderRadius: BorderRadius.only(
+//                       topLeft: Radius.circular(30),
+//                       topRight: Radius.circular(30),
+//                     ),
+//                   ),
+//                   child: Padding(
+//                     padding: const EdgeInsets.symmetric(
+//                         horizontal: 20, vertical: 40),
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         const Text(
+//                           "CATEGORIES",
+//                           style: TextStyle(
+//                               fontSize: 20,
+//                               fontWeight: FontWeight.w500,
+//                               fontFamily: 'Lato'),
+//                         ),
+//                         const SizedBox(height: 10),
+//                         Row(
+//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                           children: [
+//                             buildCategoryButton(
+//                               'UPLOAD',
+//                               'PRESCRIPTION',
+//                               'assets/images/upload_prescription.png',
+//                               () {
+//                                 Navigator.push(
+//                                   context,
+//                                   MaterialPageRoute(
+//                                       builder: (context) => const ScanImage()),
+//                                 );
+//                               },
+//                             ),
+//                             buildCategoryButton(
+//                               'PRESCRIPTION',
+//                               'FOLDER',
+//                               'assets/images/prescription_folder.png',
+//                               () {
+//                                 Navigator.push(
+//                                   context,
+//                                   MaterialPageRoute(
+//                                       builder: (context) => const MyProfile()),
+//                                 );
+//                               },
+//                             ),
+//                           ],
+//                         ),
+//                         const SizedBox(height: 30),
+//                         Row(
+//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                           children: [
+//                             buildCategoryButton(
+//                               'MEDICATION',
+//                               'REMINDER',
+//                               'assets/images/medication_reminder.png',
+//                               () {
+//                                 // Implement navigation to medication reminder page
+//                               },
+//                             ),
+//                             buildCategoryButton(
+//                               'MEDICATION',
+//                               'CHART',
+//                               'assets/images/medication_chart.png',
+//                               () {
+//                                 // Implement navigation to medication chart page
+//                               },
+//                             ),
+//                           ],
+//                         ),
+//                         const SizedBox(height: 30),
+//                         const Text(
+//                           "UPCOMING REMINDER",
+//                           style: TextStyle(
+//                               fontSize: 20,
+//                               fontWeight: FontWeight.w500,
+//                               fontFamily: 'Lato'),
+//                         ),
+//                         // Add reminders dynamically or hardcoded as per your requirement
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

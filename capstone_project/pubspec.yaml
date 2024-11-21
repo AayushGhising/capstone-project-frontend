@@ -46,6 +46,7 @@ dependencies:
   http: any
   cloudinary_flutter: ^1.0.0
   cloudinary_url_gen: ^1.0.0
+  provider: any
 
 dev_dependencies:
   flutter_test:

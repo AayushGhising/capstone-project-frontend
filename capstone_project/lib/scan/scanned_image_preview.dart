@@ -10,17 +10,31 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:capstone_project/sign_in.dart';
+import 'package:capstone_project/home_page.dart';
 
 // Storing Analyzed Text in FLutter Secure Storage
-Future<void> storeAnalyzedText(String analyzedText) async {
+Future<void> storeAnalyzedText(
+    String analyzedText, imageUrl, recognizedText) async {
   const storage = FlutterSecureStorage();
   await storage.write(key: 'AnalyzedText', value: analyzedText);
+  await storage.write(key: 'ImageUrl', value: imageUrl);
+  await storage.write(key: 'RecognizedText', value: recognizedText);
 }
 
-// Fetching Stored Analyzed Text From Flutter Secure Storage
+// Fetching Stored Analyzed Text, Image URL, and Recognized Text From Flutter Secure Storage
 Future<String?> getAnalyzedText() async {
   const storage = FlutterSecureStorage();
   return await storage.read(key: 'AnalyzedText');
+}
+
+Future<String?> getImageUrl() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'ImageUrl');
+}
+
+Future<String?> getRecognizedText() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'RecognizedText');
 }
 
 class ScannedImagePreview extends StatefulWidget {
@@ -37,6 +51,7 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
   final storage = FlutterSecureStorage();
   Future<String?> accessToken = getSignInAccessToken();
   Future<String?> refreshToken = getSignInRefreshToken();
+
   // For cropping image
   late File _imageFile;
   String? _uploadedImageUrl;
@@ -90,18 +105,28 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
 
   // Analyze the Image in the cloudinary storage usign cloudinary URL
   void analyzeImage(String? cloudinaryUrl) async {
+    if (cloudinaryUrl == null || cloudinaryUrl.isEmpty) {
+      print('Error: Image URL is null or empty');
+      _showErrorDialog('Image URL is invalid.');
+      return;
+    }
     try {
       String? access_token = await accessToken;
+      print(access_token);
       http.Response response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/api/analyze_image/'),
+          Uri.parse('http://10.0.2.2:8000/api/prescription/analyze_image/'),
           headers: {'Authorization': 'Bearer $access_token'},
           body: {'image_url': cloudinaryUrl});
+      print(response.body.toString());
+      print(response.statusCode);
       print(_uploadedImageUrl);
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         var data = jsonDecode(response.body.toString());
         print(data);
         String analyzedText = data['analyzed_text'];
-        await storeAnalyzedText(analyzedText);
+        String imageUrl = data['image_url'];
+        String recognizedText = data['recognized_text'];
+        await storeAnalyzedText(analyzedText, imageUrl, recognizedText);
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => Result()));
       } else {
@@ -145,7 +170,7 @@ class _ScannedImagePreviewState extends State<ScannedImagePreview> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Upload Successful'),
-          content: Text('Image uploaded successfully!\n\nURL:\n$_imageFile'),
+          content: Text('Image uploaded successfully!'),
           actions: [
             TextButton(
               onPressed: () {

@@ -1,8 +1,13 @@
+import 'package:capstone_project/components/my_textfield.dart';
+import 'package:capstone_project/home_page.dart';
 import 'package:capstone_project/scan/scan_image.dart';
 import 'package:capstone_project/scan/scanned_image_preview.dart';
+import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/scan/medication_details.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Result extends StatefulWidget {
   const Result({super.key});
@@ -15,7 +20,139 @@ class Result extends StatefulWidget {
 class _ResultState extends State<Result> {
   // Fetching tokens form sign_in file and putting it in a varible
   final storage = FlutterSecureStorage();
+  Future<String?> accessToken = getSignInAccessToken();
+  Future<String?> refreshToken = getSignInRefreshToken();
   Future<String?> analyzedText = getAnalyzedText();
+  Future<String?> imageUrl = getImageUrl();
+  Future<String?> recognizedText = getRecognizedText();
+  String? prescriptionName;
+  //text editing controllers
+  final prescriptionNameController = TextEditingController();
+
+  Future<void> settedPrescriptionName() async {
+    setState(() {
+      prescriptionName = prescriptionNameController.text.toString().isNotEmpty
+          ? prescriptionNameController.text.toString()
+          : 'Prescription Name';
+    });
+  }
+
+  Future<void> storePrescription(
+    String? prescriptionName,
+    String? analyzedText,
+    String? imageUrl,
+    String? recognizedText,
+  ) async {
+    String? access_token = await accessToken;
+    String? refresh_token = await refreshToken;
+
+    print('Access token: $access_token');
+    print('Refresh token: $refresh_token');
+    print('Image Url: $imageUrl');
+    print('Analyzed Text: $analyzedText');
+    print('Recognized Text: $recognizedText');
+    print('prescription name: $prescriptionName');
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/prescriptions/create/'),
+        headers: {'Authorization': 'Bearer $access_token'},
+        body: {
+          'prescription_name': prescriptionName,
+          'image_url': imageUrl,
+          'recognized_text': recognizedText,
+          'analyzed_text': analyzedText,
+        },
+      );
+      print(response.body.toString());
+      print(response.statusCode);
+      if (response.statusCode == 201) {
+        print('Prescription saved successfully');
+      } else {
+        http.Response refreshResponse = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+          body: {'refresh': refresh_token},
+        );
+        if (refreshResponse.statusCode == 200) {
+          var refreshData = json.decode(refreshResponse.body);
+          String newRefreshToken = refreshData['refresh'];
+          String newAccessToken = refreshData['access'];
+          await storage.write(key: 'SignInAccessToken', value: newAccessToken);
+          await storage.write(
+              key: 'SignInRefreshToken', value: newRefreshToken);
+          setState(() {
+            accessToken = Future.value(newAccessToken);
+            refreshToken = Future.value(newRefreshToken);
+          });
+          print('Access token: $newAccessToken');
+          print('Refresh token: $newRefreshToken');
+          storePrescription(
+              prescriptionName, analyzedText, imageUrl, recognizedText);
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> setPrescriptionName() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 10,
+                bottom: 10,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Prescription Name',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'lato',
+                      fontSize: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  // Prescription Name
+                  MyTextfield(
+                    controller: prescriptionNameController,
+                    hintText: 'Write Your Prescription File Name...',
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 30),
+                  TextButton(
+                      onPressed: () async {
+                        String? image_url = await imageUrl;
+                        String? analyzed_text = await analyzedText;
+                        String? recognized_text = await recognizedText;
+                        await settedPrescriptionName();
+                        storePrescription(prescriptionName, analyzed_text,
+                            image_url, recognized_text);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      },
+                      child: Text(
+                        'Ok',
+                        style: TextStyle(
+                          fontFamily: 'lato',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ))
+                ],
+              ),
+            ),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +282,7 @@ class _ResultState extends State<Result> {
                     //     context,
                     //     MaterialPageRoute(
                     //         builder: (context) => const Result()));
+                    setPrescriptionName();
                   },
                   child: Container(
                     height: 50,
@@ -157,7 +295,7 @@ class _ResultState extends State<Result> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Export',
+                          'Save',
                           style: TextStyle(
                             fontFamily: 'lato',
                             fontSize: 18,
