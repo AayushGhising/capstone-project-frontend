@@ -91,7 +91,7 @@ class _ScanImageState extends State<ScanImage> {
         color: const Color.fromARGB(255, 242, 247, 250),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: (MediaQuery.of(context).size.width * 4) / 3,
               width: MediaQuery.of(context).size.width,
               child: RotatedBox(
@@ -170,10 +170,10 @@ class _ScanImageState extends State<ScanImage> {
                     ElevatedButton(
                       onPressed: () async {
                         if (!_controller.value.isInitialized) {
-                          return null;
+                          return;
                         }
                         if (_controller.value.isTakingPicture) {
-                          return null;
+                          return;
                         }
                         try {
                           // await _controller.setFlashMode(FlashMode.auto);
@@ -185,7 +185,7 @@ class _ScanImageState extends State<ScanImage> {
                                       ScannedImagePreview(picture)));
                         } on CameraException catch (e) {
                           debugPrint("Error occured while taking picture : $e");
-                          return null;
+                          return;
                         }
                       },
                       style: ElevatedButton.styleFrom(

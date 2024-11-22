@@ -44,6 +44,9 @@ dependencies:
   flutter_multiselect: any
   flutter_secure_storage: any
   http: any
+  cloudinary_flutter: ^1.0.0
+  cloudinary_url_gen: ^1.0.0
+  provider: any
 
 dev_dependencies:
   flutter_test:
@@ -124,6 +127,8 @@ flutter:
     - assets/images/calendar.png
     - assets/images/memo.png
     - assets/images/reason.png
+    - assets/images/edit.png
+    - assets/images/pills.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

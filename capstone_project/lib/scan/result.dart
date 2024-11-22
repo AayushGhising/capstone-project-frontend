@@ -1,6 +1,13 @@
+import 'package:capstone_project/components/my_textfield.dart';
+import 'package:capstone_project/home_page.dart';
 import 'package:capstone_project/scan/scan_image.dart';
+import 'package:capstone_project/scan/scanned_image_preview.dart';
+import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/scan/medication_details.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Result extends StatefulWidget {
   const Result({super.key});
@@ -11,6 +18,142 @@ class Result extends StatefulWidget {
 }
 
 class _ResultState extends State<Result> {
+  // Fetching tokens form sign_in file and putting it in a varible
+  final storage = FlutterSecureStorage();
+  Future<String?> accessToken = getSignInAccessToken();
+  Future<String?> refreshToken = getSignInRefreshToken();
+  Future<String?> analyzedText = getAnalyzedText();
+  Future<String?> imageUrl = getImageUrl();
+  Future<String?> recognizedText = getRecognizedText();
+  String? prescriptionName;
+  //text editing controllers
+  final prescriptionNameController = TextEditingController();
+
+  Future<void> settedPrescriptionName() async {
+    setState(() {
+      prescriptionName = prescriptionNameController.text.toString().isNotEmpty
+          ? prescriptionNameController.text.toString()
+          : 'Prescription Name';
+    });
+  }
+
+  Future<void> storePrescription(
+    String? prescriptionName,
+    String? analyzedText,
+    String? imageUrl,
+    String? recognizedText,
+  ) async {
+    String? access_token = await accessToken;
+    String? refresh_token = await refreshToken;
+
+    print('Access token: $access_token');
+    print('Refresh token: $refresh_token');
+    print('Image Url: $imageUrl');
+    print('Analyzed Text: $analyzedText');
+    print('Recognized Text: $recognizedText');
+    print('prescription name: $prescriptionName');
+    try {
+      http.Response response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/prescriptions/create/'),
+        headers: {'Authorization': 'Bearer $access_token'},
+        body: {
+          'prescription_name': prescriptionName,
+          'image_url': imageUrl,
+          'recognized_text': recognizedText,
+          'analyzed_text': analyzedText,
+        },
+      );
+      print(response.body.toString());
+      print(response.statusCode);
+      if (response.statusCode == 201) {
+        print('Prescription saved successfully');
+      } else {
+        http.Response refreshResponse = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+          body: {'refresh': refresh_token},
+        );
+        if (refreshResponse.statusCode == 200) {
+          var refreshData = json.decode(refreshResponse.body);
+          String newRefreshToken = refreshData['refresh'];
+          String newAccessToken = refreshData['access'];
+          await storage.write(key: 'SignInAccessToken', value: newAccessToken);
+          await storage.write(
+              key: 'SignInRefreshToken', value: newRefreshToken);
+          setState(() {
+            accessToken = Future.value(newAccessToken);
+            refreshToken = Future.value(newRefreshToken);
+          });
+          print('Access token: $newAccessToken');
+          print('Refresh token: $newRefreshToken');
+          storePrescription(
+              prescriptionName, analyzedText, imageUrl, recognizedText);
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> setPrescriptionName() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 10,
+                bottom: 10,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Prescription Name',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'lato',
+                      fontSize: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  // Prescription Name
+                  MyTextfield(
+                    controller: prescriptionNameController,
+                    hintText: 'Write Your Prescription File Name...',
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 30),
+                  TextButton(
+                      onPressed: () async {
+                        String? image_url = await imageUrl;
+                        String? analyzed_text = await analyzedText;
+                        String? recognized_text = await recognizedText;
+                        await settedPrescriptionName();
+                        storePrescription(prescriptionName, analyzed_text,
+                            image_url, recognized_text);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()));
+                      },
+                      child: Text(
+                        'Ok',
+                        style: TextStyle(
+                          fontFamily: 'lato',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,66 +209,30 @@ class _ResultState extends State<Result> {
                       ),
                       // Text(
                       //     'F.C.T. HEALTH SERVICES, ABUJA. \nGeneral Prescription Form Hospital: \nKGH Ward/Clinic: GOCD')
-                      Text('F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'General Prescription Form\n'
-                          'Hospital: KGH\n'
-                          'Ward/Clinic: GOCD\n'
-                          '----------------------------------------\n'
-                          'Patient Name: John Doe\n'
-                          'Age: 45\n'
-                          'Gender: Male\n'
-                          'Date: 13/11/2024\n'
-                          '----------------------------------------\n'
-                          'Diagnosis: Hypertension\n'
-                          'Prescription:\n'
-                          '1. Amlodipine 5mg - Take one tablet daily\n'
-                          '2. Losartan 50mg - Take one tablet every morning\n'
-                          '3. Atorvastatin 10mg - Take one tablet at night\n'
-                          '----------------------------------------\n'
-                          'Doctor\'s Instructions:\n'
-                          'Avoid high-salt foods\n'
-                          'Exercise regularly\n'
-                          'Monitor blood pressure daily\n'
-                          'Follow up in 2 weeks\n'
-                          '----------------------------------------\n'
-                          'Pharmacy Instructions:\n'
-                          'Ensure patient understands dosage instructions\n'
-                          'Counsel on side effects of medication\n'
-                          '----------------------------------------\n'
-                          'Pharmacist: Jane Smith\n'
-                          'Dispensed Date: 13/11/2024\n'
-                          '----------------------------------------\n'
-                          'Emergency Contact: (555) 123-4567\n'
-                          '----------------------------------------\n'
-                          'Doctor\'s Signature: ________________\n'
-                          'Patient\'s Signature: _______________\n'
-                          '----------------------------------------\n'
-                          'Next Appointment:\n'
-                          'Date: 27/11/2024\n'
-                          'Time: 10:00 AM\n'
-                          '----------------------------------------\n'
-                          'Additional Notes:\n'
-                          'Bring all medications to follow-up appointment.\n'
-                          'Report any unusual side effects immediately.\n'
-                          '----------------------------------------\n'
-                          'F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'Prescription Form (Contd...)\n'
-                          '----------------------------------------\n'
-                          'Hospital Information:\n'
-                          'Address: 123 Health St., Abuja, Nigeria\n'
-                          'Contact: (555) 987-6543\n'
-                          'Website: www.fcthealthservices.ng\n'
-                          '----------------------------------------\n'
-                          'Reminder:\n'
-                          'Take medications as prescribed to manage your condition.\n'
-                          'For any questions, contact your healthcare provider.\n'
-                          '----------------------------------------\n'
-                          'Thank you for choosing F.C.T. Health Services.\n'
-                          'Stay healthy and follow medical advice diligently.\n'
-                          '----------------------------------------\n'
-                          'F.C.T. HEALTH SERVICES, ABUJA.\n'
-                          'Your health is our priority.\n'
-                          '----------------------------------------\n'),
+                      // Text(analyzedText.toString()),
+                      FutureBuilder<String?>(
+                        future: analyzedText,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(); // Show loading indicator while waiting
+                          } else if (snapshot.hasError) {
+                            return Text(
+                                'Error: ${snapshot.error}'); // Show error if any
+                          } else if (!snapshot.hasData ||
+                              snapshot.data == null) {
+                            return const Text('No analyzed text available.');
+                          } else {
+                            return Text(
+                              snapshot.data!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'lato',
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -175,6 +282,7 @@ class _ResultState extends State<Result> {
                     //     context,
                     //     MaterialPageRoute(
                     //         builder: (context) => const Result()));
+                    setPrescriptionName();
                   },
                   child: Container(
                     height: 50,
@@ -187,7 +295,7 @@ class _ResultState extends State<Result> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          'Export',
+                          'Save',
                           style: TextStyle(
                             fontFamily: 'lato',
                             fontSize: 18,
