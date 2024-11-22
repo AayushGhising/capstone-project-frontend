@@ -123,7 +123,7 @@ class _ResultState extends State<Result> {
                   MyTextfield(
                     controller: prescriptionNameController,
                     hintText: 'Write Your Prescription File Name...',
-                    obscureText: true,
+                    obscureText: false,
                   ),
                   const SizedBox(height: 30),
                   TextButton(

@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
       String? access_token = await accessToken;
       http.Response response = await http.get(
         Uri.parse('http://10.0.2.2:8000/api/get-user-profile/'),
-        headers: {'Authorization': 'Bearer $accessToken'},
+        headers: {'Authorization': 'Bearer $access_token'},
       );
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
