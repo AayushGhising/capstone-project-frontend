@@ -1,14 +1,13 @@
 import 'package:capstone_project/medication_reminder/add_medication.dart';
-import 'package:capstone_project/medication_reminder/reminder.dart';
 import 'dart:convert';
+
 import 'package:capstone_project/my_profile/my_profile.dart';
-import 'package:capstone_project/prescription_folder/prescription.dart';
+import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
 import 'package:capstone_project/scan/scan_image.dart';
 import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:capstone_project/medication_reminder/reminder.dart';
 
 // Storing user data in flutter secure storage
 Future<void> storeUserData(String fullName, String profilePic) async {
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
       String? access_token = await accessToken;
       http.Response response = await http.get(
         Uri.parse('http://10.0.2.2:8000/api/get-user-profile/'),
-        headers: {'Authorization': 'Bearer $accessToken'},
+        headers: {'Authorization': 'Bearer $access_token'},
       );
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
@@ -81,12 +80,12 @@ class _HomePageState extends State<HomePage> {
         if (responseCode == "bad_authorization_header") {
           print("Access token is empty!");
         }
-        // refreshing the token using refresh token as the access token has eDxpired
+        // refreshing the token using refresh token as the access token has expired
         else {
           String? refresh_token = await refreshToken;
           http.Response refreshResponse = await http.post(
             Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
-            body: {'refresh': refreshToken},
+            body: {'refresh': refresh_token},
           );
           if (refreshResponse.statusCode == 200) {
             var refreshData = json.decode(refreshResponse.body);
@@ -371,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const Prescription()));
+                                                const MyPrescriptions()));
                                   },
                                   child: Container(
                                     height: 110,
@@ -426,7 +425,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const Reminder()));
+                                                const AddMedication()));
                                   },
                                   child: Container(
                                     height: 110,
@@ -748,215 +747,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-// chat gpt
-
-// import 'dart:convert';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:provider/provider.dart';
-// import 'user_profile_provider.dart'; // Import your provider file
-// import 'my_profile/my_profile.dart';
-// import 'scan/scan_image.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'sign_in.dart';
-
-// class HomePage extends StatefulWidget {
-//   const HomePage({super.key});
-
-//   @override
-//   State<HomePage> createState() => _HomePageState();
-// }
-
-// class _HomePageState extends State<HomePage> {
-//   // Fetching tokens from FlutterSecureStorage
-//   final storage = FlutterSecureStorage();
-//   Future<String?> accessToken = getSignInAccessToken();
-
-//   @override
-//   void didChangeDependencies() {
-//     super.didChangeDependencies();
-//     final userProfileProvider =
-//         Provider.of<UserProfileProvider>(context, listen: false);
-
-//     accessToken.then((token) {
-//       if (token != null) {
-//         userProfileProvider.fetchUserProfile(token);
-//       } else {
-//         print('Access token is null.');
-//       }
-//     });
-//   }
-
-//   Widget buildCategoryButton(
-//       String line1, String line2, String imagePath, VoidCallback onTap) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Container(
-//         height: 110,
-//         width: 175,
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10),
-//           boxShadow: const [
-//             BoxShadow(
-//               color: Color.fromARGB(255, 212, 212, 212),
-//               offset: Offset(0, 10),
-//               blurRadius: 10.0,
-//               spreadRadius: -2,
-//             ),
-//           ],
-//         ),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Image.asset(imagePath),
-//             Text(line1, style: const TextStyle(fontFamily: 'Lato')),
-//             Text(line2, style: const TextStyle(fontFamily: 'Lato')),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final userProfileProvider = Provider.of<UserProfileProvider>(context);
-
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           Container(
-//             height: 400,
-//             color: const Color.fromARGB(255, 180, 177, 243),
-//             child: Padding(
-//               padding: const EdgeInsets.only(bottom: 100, left: 20),
-//               child: Row(
-//                 children: [
-//                   CircleAvatar(
-//                     radius: 30,
-//                     backgroundImage: userProfileProvider.profilePicUrl != null
-//                         ? NetworkImage(userProfileProvider.profilePicUrl!)
-//                         : const AssetImage('assets/images/user.png')
-//                             as ImageProvider,
-//                   ),
-//                   const SizedBox(width: 10),
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       const Text(
-//                         "Welcome!",
-//                         style: TextStyle(fontSize: 18, fontFamily: 'Lato'),
-//                       ),
-//                       Text(
-//                         userProfileProvider.fullName ?? "User",
-//                         style: const TextStyle(
-//                             fontSize: 18,
-//                             fontFamily: 'Lato',
-//                             fontWeight: FontWeight.bold),
-//                       ),
-//                     ],
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ),
-//           Column(
-//             children: [
-//               const SizedBox(height: 200),
-//               Expanded(
-//                 child: Container(
-//                   decoration: const BoxDecoration(
-//                     color: Color.fromARGB(255, 242, 247, 250),
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(30),
-//                       topRight: Radius.circular(30),
-//                     ),
-//                   ),
-//                   child: Padding(
-//                     padding: const EdgeInsets.symmetric(
-//                         horizontal: 20, vertical: 40),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         const Text(
-//                           "CATEGORIES",
-//                           style: TextStyle(
-//                               fontSize: 20,
-//                               fontWeight: FontWeight.w500,
-//                               fontFamily: 'Lato'),
-//                         ),
-//                         const SizedBox(height: 10),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             buildCategoryButton(
-//                               'UPLOAD',
-//                               'PRESCRIPTION',
-//                               'assets/images/upload_prescription.png',
-//                               () {
-//                                 Navigator.push(
-//                                   context,
-//                                   MaterialPageRoute(
-//                                       builder: (context) => const ScanImage()),
-//                                 );
-//                               },
-//                             ),
-//                             buildCategoryButton(
-//                               'PRESCRIPTION',
-//                               'FOLDER',
-//                               'assets/images/prescription_folder.png',
-//                               () {
-//                                 Navigator.push(
-//                                   context,
-//                                   MaterialPageRoute(
-//                                       builder: (context) => const MyProfile()),
-//                                 );
-//                               },
-//                             ),
-//                           ],
-//                         ),
-//                         const SizedBox(height: 30),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             buildCategoryButton(
-//                               'MEDICATION',
-//                               'REMINDER',
-//                               'assets/images/medication_reminder.png',
-//                               () {
-//                                 // Implement navigation to medication reminder page
-//                               },
-//                             ),
-//                             buildCategoryButton(
-//                               'MEDICATION',
-//                               'CHART',
-//                               'assets/images/medication_chart.png',
-//                               () {
-//                                 // Implement navigation to medication chart page
-//                               },
-//                             ),
-//                           ],
-//                         ),
-//                         const SizedBox(height: 30),
-//                         const Text(
-//                           "UPCOMING REMINDER",
-//                           style: TextStyle(
-//                               fontSize: 20,
-//                               fontWeight: FontWeight.w500,
-//                               fontFamily: 'Lato'),
-//                         ),
-//                         // Add reminders dynamically or hardcoded as per your requirement
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

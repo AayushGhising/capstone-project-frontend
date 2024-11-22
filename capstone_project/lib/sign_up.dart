@@ -28,7 +28,7 @@ Future<String?> getSignUpAccessToken() async {
 }
 
 class SignUp extends StatefulWidget {
-  SignUp({super.key});
+  const SignUp({super.key});
   @override
   State<SignUp> createState() {
     return _SignUpState();
@@ -58,9 +58,9 @@ class _SignUpState extends State<SignUp> {
 
   void postData(
     String email,
-    String full_Name,
+    String fullName,
     String password,
-    String confirm_password,
+    String confirmPassword,
     BuildContext context,
   ) async {
     try {
@@ -68,9 +68,9 @@ class _SignUpState extends State<SignUp> {
         Uri.parse('http://10.0.2.2:8000/api/register/'),
         body: {
           'email': email,
-          'full_name': full_Name,
+          'full_name': fullName,
           'password': password,
-          'confirm_password': confirm_password,
+          'confirm_password': confirmPassword,
         },
       );
       if (response.statusCode == 201) {

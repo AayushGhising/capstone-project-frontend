@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:capstone_project/sign_in.dart';
 import "package:flutter/material.dart";
 import 'package:capstone_project/components/medication_textfield.dart';
-import 'package:capstone_project/components/schedule.dart';
+import 'package:capstone_project/components/schedule.dart' as ComponentSchedule;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:capstone_project/medication_reminder/reminder.dart';
 
 class AddMedication extends StatefulWidget {
   const AddMedication({super.key});
@@ -20,7 +21,9 @@ class _AddMedicationState extends State<AddMedication> {
   final TextEditingController _reasonController = TextEditingController();
 
   // Schdeule widget
-  final Schedule _scheduleWidget = const Schedule();
+  // final Schedule _scheduleWidget = const Schedule();
+  final GlobalKey<ComponentSchedule.ScheduleState> _scheduleKey =
+      GlobalKey<ComponentSchedule.ScheduleState>();
 
   // fetching the access token from the sign in page
   final storage = FlutterSecureStorage();
@@ -40,8 +43,8 @@ class _AddMedicationState extends State<AddMedication> {
   ) async {
     try {
       // getting the access token and refresh token
-      String? access_token = await getSignInAccessToken();
-      String? refresh_token = await getSignInRefreshToken();
+      String? access_token = await accessToken;
+      String? refresh_token = await refreshToken;
       if (access_token == null) {
         throw Exception('User is not authenticated.');
       }
@@ -77,15 +80,27 @@ class _AddMedicationState extends State<AddMedication> {
         'medication_name': medicationName,
         'reason_for_medication': medicationReason,
         'frequency': frequencyData['type'],
-        'every_x_days': frequencyData['value'],
-        'day_of_week': frequencyData['days'],
-        'day_of_month': frequencyData['days'],
+        'every_x_days': frequencyData['type'] == 'every_x_days'
+            ? frequencyData['value']
+            : null,
+        'day_of_week': frequencyData['type'] == 'day_of_week'
+            ? frequencyData['days']
+            : null,
+        'day_of_month': frequencyData['type'] == 'day_of_month'
+            ? frequencyData['days']
+            : null,
         'start_date': DateFormat('yyyy-MM-dd').format(startDate),
         'end_date':
             endDate != null ? DateFormat('yyyy-MM-dd').format(endDate) : null,
         'memo': memo,
         'repeat': repeat,
-        'times': schedules,
+        'times': schedules.map((schedule) {
+          return {
+            'time': schedule['time'],
+            'dosage': schedule['dosage'],
+            'unit': schedule['unit'],
+          };
+        }).toList(),
       };
       //print body for debugging
       print('Request Body: ${jsonEncode(body)}');
@@ -111,6 +126,20 @@ class _AddMedicationState extends State<AddMedication> {
           Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
           body: {'refresh': refresh_token},
         );
+
+        // handle APi response
+        if (response.statusCode == 201) {
+          var data = jsonDecode(response.body.toString());
+          print(data);
+          print('Added medication successfully!');
+        } else if (response.statusCode == 401) {
+          if (refresh_token != null) {
+            http.Response refreshResponse = await http.post(
+                Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
+                body: jsonEncode({'refresh': refresh_token}));
+          }
+        }
+
         if (refreshResponse.statusCode == 200) {
           var refreshData = json.decode(refreshResponse.body);
           String newRefreshToken = refreshData['refresh'];
@@ -171,28 +200,27 @@ class _AddMedicationState extends State<AddMedication> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          'Add Medicine',
+          style: TextStyle(
+            color: Color.fromARGB(255, 48, 48, 48),
+            fontFamily: 'Lato',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Container(
-            height: 1250,
+            height: 1200,
             width: 500,
             color: const Color.fromARGB(255, 242, 247, 250),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    'Add Medicine',
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 48, 48, 48),
-                        fontFamily: 'Lato',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
                 const SizedBox(height: 30),
                 //Medicine Name
                 const Padding(
@@ -200,9 +228,10 @@ class _AddMedicationState extends State<AddMedication> {
                   child: Text(
                     'Medicine Name',
                     style: TextStyle(
-                        color: Color.fromARGB(255, 48, 48, 48),
-                        fontFamily: 'Lato',
-                        fontSize: 18),
+                      color: Color.fromARGB(255, 48, 48, 48),
+                      fontFamily: 'Lato',
+                      fontSize: 18,
+                    ),
                     textAlign: TextAlign.left,
                   ),
                 ),
@@ -453,7 +482,7 @@ class _AddMedicationState extends State<AddMedication> {
                   ),
                 //Schedule Widget
                 const SizedBox(height: 15),
-                const Schedule(),
+                ComponentSchedule.Schedule(key: _scheduleKey),
                 //Start Date
                 const SizedBox(height: 15),
                 const Padding(
@@ -634,16 +663,36 @@ class _AddMedicationState extends State<AddMedication> {
                             return;
                           }
                           // dynamic time and dosage inputs
+                          // List<Map<String, dynamic>> schedules =
+                          //     _scheduleWidget.getSchedules(context);
+                          // print('Schedules: $schedules');
+                          // if (schedules.isEmpty) {
+                          //   print('Schedule list is empty');
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     const SnackBar(
+                          //       content:
+                          //           Text('Please add at least one schedule.'),
+                          //     ),
+                          //   );
+                          //   return;
+                          // }
                           List<Map<String, dynamic>> schedules =
-                              _scheduleWidget.getSchedules(context);
+                              _scheduleKey.currentState?.getSchedules() ?? [];
+                          print('Schedules: $schedules');
                           if (schedules.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content:
-                                    Text('Please add at least one schedule.'),
+                                    Text('Please add atleast one schedule'),
                               ),
                             );
                           }
+
+                          // Page route
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Reminder()));
 
                           // Call the save medication function
                           await _saveMedication(
@@ -655,12 +704,6 @@ class _AddMedicationState extends State<AddMedication> {
                             _memoController.text, //No memo validation
                             true,
                             schedules,
-                          );
-                          // Show success message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('Medication added successfully!')),
                           );
                         },
                         label: 'Save'),
