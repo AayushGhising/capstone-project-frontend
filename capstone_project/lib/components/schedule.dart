@@ -7,21 +7,33 @@ class Schedule extends StatefulWidget {
   });
 
   @override
-  _ScheduleState createState() => _ScheduleState();
+  ScheduleState createState() => ScheduleState();
 
   // Function to retrieve the current schedules
-  List<Map<String, dynamic>> getSchedules(BuildContext context) {
-    return (context.findAncestorStateOfType<_ScheduleState>()?.schedules ?? []);
-  }
+//   List<Map<String, dynamic>> getSchedules(BuildContext context) {
+//     return context.findAncestorStateOfType<_ScheduleState>()?.schedules ?? [];
+//   }
 }
 
-class _ScheduleState extends State<Schedule> {
+class ScheduleState extends State<Schedule> {
   //List to hold schedule data
   List<Map<String, dynamic>> schedules = [
-    {"time": "07:00", "period": "AM", "dosage": 1.0},
-    {"time": "02:00", "period": "PM", "dosage": 1.0},
-    {"time": "08:00", "period": "PM", "dosage": 1.0}
+    {"time": "07:00 AM", "dosage": 1.0, "unit": "pill(s)"},
+    {"time": "02:00 PM", "dosage": 1.0, "unit": "pill(s)"},
+    {"time": "08:00 PM", "dosage": 1.0, "unit": "pill(s)"}
   ];
+
+  // Function to retrieve schedules
+  List<Map<String, dynamic>> getSchedules() {
+    return schedules;
+  }
+
+  // Function to add a new Schedule
+  void addSchedule(Map<String, dynamic> schedule) {
+    setState(() {
+      schedules.add(schedule);
+    });
+  }
 
   //Function to delete a schedule row
   void _deleteSchedule(int index) {
@@ -38,6 +50,7 @@ class _ScheduleState extends State<Schedule> {
           return AddScheduleDialog(onAdd: (newSchedule) {
             setState(() {
               schedules.add(newSchedule);
+              print('Schedules after adding: $schedules');
             });
           });
         });
@@ -72,8 +85,7 @@ class _ScheduleState extends State<Schedule> {
               columnWidths: const {
                 0: FlexColumnWidth(1),
                 1: FlexColumnWidth(1),
-                2: FlexColumnWidth(1),
-                3: FlexColumnWidth(0.5)
+                2: FlexColumnWidth(0.5)
               },
               border: TableBorder.all(
                 color: Colors.transparent,
@@ -92,19 +104,6 @@ class _ScheduleState extends State<Schedule> {
                       child: Center(
                         child: Text(
                           'Time',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 48, 48, 48),
-                            fontFamily: 'Lato',
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Center(
-                        child: Text(
-                          'Period',
                           style: TextStyle(
                             color: Color.fromARGB(255, 48, 48, 48),
                             fontFamily: 'Lato',
@@ -151,19 +150,6 @@ class _ScheduleState extends State<Schedule> {
                         child: Center(
                           child: Text(
                             schedules[index]["time"],
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Lato',
-                              color: Color.fromARGB(255, 48, 48, 48),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Center(
-                          child: Text(
-                            schedules[index]["period"],
                             style: const TextStyle(
                               fontSize: 15,
                               fontFamily: 'Lato',
@@ -224,7 +210,7 @@ class _ScheduleState extends State<Schedule> {
 class AddScheduleDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onAdd;
 
-  const AddScheduleDialog({Key? key, required this.onAdd}) : super(key: key);
+  const AddScheduleDialog({super.key, required this.onAdd});
 
   @override
   _AddScheduleDialogState createState() => _AddScheduleDialogState();
@@ -278,10 +264,10 @@ class _AddScheduleDialogState extends State<AddScheduleDialog> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                final formattedTime =
+                    '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')} $period';
                 widget.onAdd({
-                  'time':
-                      '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}',
-                  'period': period,
+                  'time': formattedTime,
                   'dosage': dosage,
                   'unit': unit,
                 });

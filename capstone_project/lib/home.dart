@@ -1,6 +1,6 @@
 import 'package:capstone_project/medication_reminder/add_medication.dart';
-import 'package:capstone_project/medication_reminder/reminder.dart';
 import 'dart:convert';
+
 import 'package:capstone_project/my_profile/my_profile.dart';
 import 'package:capstone_project/prescription_folder/my_prescriptions.dart';
 import 'package:capstone_project/scan/scan_image.dart';
@@ -8,7 +8,24 @@ import 'package:capstone_project/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:capstone_project/medication_reminder/reminder.dart';
+
+// Storing user data in flutter secure storage
+Future<void> storeUserData(String fullName, String profilePic) async {
+  final storage = FlutterSecureStorage();
+  await storage.write(key: 'full_name', value: fullName);
+  await storage.write(key: 'profile_pic', value: profilePic);
+}
+
+// Fetching Stored Tokens From Flutter Secure Storage
+Future<String?> getUserFullName() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'full_name');
+}
+
+Future<String?> getUserProfilePic() async {
+  const storage = FlutterSecureStorage();
+  return await storage.read(key: 'profile_pic');
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,13 +51,19 @@ class _HomePageState extends State<HomePage> {
     fetchData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchData(); // Fetch profile picture or update state
+  }
+
   // Getting user data from the backend using API
   void fetchData() async {
     try {
       String? access_token = await accessToken;
       http.Response response = await http.get(
         Uri.parse('http://10.0.2.2:8000/api/get-user-profile/'),
-        headers: {'Authorization': 'Bearer $accessToken'},
+        headers: {'Authorization': 'Bearer $access_token'},
       );
       var data = json.decode(response.body);
       if (response.statusCode == 200) {
@@ -50,18 +73,19 @@ class _HomePageState extends State<HomePage> {
             full_name = data['full_name'];
           },
         );
+        await storeUserData(full_name!, profile_pic!);
         print('Successfully fetched user profile and username');
       } else {
         String responseCode = data['code'];
         if (responseCode == "bad_authorization_header") {
           print("Access token is empty!");
         }
-        // refreshing the token using refresh token as the access token has eDxpired
+        // refreshing the token using refresh token as the access token has expired
         else {
           String? refresh_token = await refreshToken;
           http.Response refreshResponse = await http.post(
             Uri.parse('http://10.0.2.2:8000/api/token/refresh/'),
-            body: {'refresh': refreshToken},
+            body: {'refresh': refresh_token},
           );
           if (refreshResponse.statusCode == 200) {
             var refreshData = json.decode(refreshResponse.body);
@@ -401,7 +425,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const Reminder()));
+                                                const AddMedication()));
                                   },
                                   child: Container(
                                     height: 110,
@@ -633,12 +657,23 @@ class _HomePageState extends State<HomePage> {
 
                           // Account Button
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const MyProfile()));
+                            // onTap: () {
+                            //   Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (context) => const MyProfile()));
+                            // },
+                            onTap: () async {
+                              bool? isProfileUpdated = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const MyProfile()),
+                              );
+                              if (isProfileUpdated == true) {
+                                fetchData(); // Re-fetch user data if the profile was updated
+                              }
                             },
+
                             child: Container(
                               height: 60,
                               width: 60,
