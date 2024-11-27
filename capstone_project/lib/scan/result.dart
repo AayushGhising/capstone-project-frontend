@@ -198,7 +198,7 @@ class _ResultState extends State<Result> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Analyzed Text',
+                        'Analyzed Prescription',
                         style: TextStyle(
                           color: Color.fromARGB(255, 85, 85, 85),
                           fontFamily: 'lato',
@@ -206,6 +206,29 @@ class _ResultState extends State<Result> {
                           decoration: TextDecoration.underline,
                           fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      FutureBuilder<String?>(
+                        future: recognizedText, // Future for recognized text
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(); // Show loading indicator while waiting
+                          } else if (snapshot.hasError) {
+                            return Text(
+                                'Error: ${snapshot.error}'); // Show error if any
+                          } else if (!snapshot.hasData ||
+                              snapshot.data == null) {
+                            return const Text('No recognized text available.');
+                          } else {
+                            return Text(
+                              'Recognized Text: ${snapshot.data!}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'lato',
+                              ),
+                            );
+                          }
+                        },
                       ),
                       // Text(
                       //     'F.C.T. HEALTH SERVICES, ABUJA. \nGeneral Prescription Form Hospital: \nKGH Ward/Clinic: GOCD')
@@ -278,10 +301,6 @@ class _ResultState extends State<Result> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => const Result()));
                     setPrescriptionName();
                   },
                   child: Container(
@@ -318,10 +337,8 @@ class _ResultState extends State<Result> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MedicationDetails()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HomePage()));
               }, // Triggers the cropping functionality
               child: Container(
                 height: 50,
@@ -334,7 +351,7 @@ class _ResultState extends State<Result> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Get Medication Details',
+                      'Go Home',
                       style: TextStyle(
                         fontFamily: 'lato',
                         fontSize: 18,
@@ -345,7 +362,7 @@ class _ResultState extends State<Result> {
                     const SizedBox(
                       width: 5,
                     ),
-                    Image.asset('assets/images/get_medication_details.png'),
+                    Image.asset('assets/images/home.png'),
                   ],
                 ),
               ),

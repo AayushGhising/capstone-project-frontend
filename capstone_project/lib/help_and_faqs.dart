@@ -154,17 +154,6 @@ class _HelpAndFaqs extends State<HelpAndFaqs> {
                 expansionTile(10, "Is my data secure with PrescriptAid?",
                     "Yes, we prioritize your privacy and data security. All personal and medical information is encrypted and stored securely. We comply with all relevant data protection regulations."),
                 const SizedBox(height: 12),
-                MyButton(
-                    onPressed: () async {
-                      final action = await AlertDialogs.yesCancelDialog(
-                          context, 'Logout', 'are you sure?');
-                      if (action == DialogsAction.yes) {
-                        setState(() => tappedYes = true);
-                      } else {
-                        setState(() => tappedYes = false);
-                      }
-                    },
-                    label: 'Logout')
               ],
             ),
           ),

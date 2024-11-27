@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:capstone_project/home.dart';
 import 'package:capstone_project/sign_in.dart';
 import "package:flutter/material.dart";
 import 'package:capstone_project/components/medication_textfield.dart';
@@ -688,12 +689,6 @@ class _AddMedicationState extends State<AddMedication> {
                             );
                           }
 
-                          // Page route
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Reminder()));
-
                           // Call the save medication function
                           await _saveMedication(
                             _medicineNameController.text,
@@ -705,6 +700,11 @@ class _AddMedicationState extends State<AddMedication> {
                             true,
                             schedules,
                           );
+                          // Page route
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Reminder()));
                         },
                         label: 'Save'),
                   ),
