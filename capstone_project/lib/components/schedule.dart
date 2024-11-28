@@ -8,11 +8,6 @@ class Schedule extends StatefulWidget {
 
   @override
   ScheduleState createState() => ScheduleState();
-
-  // Function to retrieve the current schedules
-//   List<Map<String, dynamic>> getSchedules(BuildContext context) {
-//     return context.findAncestorStateOfType<_ScheduleState>()?.schedules ?? [];
-//   }
 }
 
 class ScheduleState extends State<Schedule> {

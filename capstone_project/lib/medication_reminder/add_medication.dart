@@ -662,20 +662,6 @@ class _AddMedicationState extends State<AddMedication> {
                             );
                             return;
                           }
-                          // dynamic time and dosage inputs
-                          // List<Map<String, dynamic>> schedules =
-                          //     _scheduleWidget.getSchedules(context);
-                          // print('Schedules: $schedules');
-                          // if (schedules.isEmpty) {
-                          //   print('Schedule list is empty');
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //     const SnackBar(
-                          //       content:
-                          //           Text('Please add at least one schedule.'),
-                          //     ),
-                          //   );
-                          //   return;
-                          // }
                           List<Map<String, dynamic>> schedules =
                               _scheduleKey.currentState?.getSchedules() ?? [];
                           print('Schedules: $schedules');
