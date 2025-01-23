@@ -38,10 +38,11 @@ The frontend of PrescriptAid plays a crucial role in:
 ## Screenshots
 Include screenshots of your app here to showcase its interface, such as:
 • Home Screen:
-<img src="C:\Users\Acer\OneDrive\Pictures\bluestack screenshots\Screenshot_2025.01.23_15.12.08.978.png">
+![Screenshot_2025 01 23_15 12 08 978](https://github.com/user-attachments/assets/0c3a060b-30a9-4e63-b6bc-152940f0aee1)
 • Prescription Upload Screen:
-<img src="C:\Users\Acer\OneDrive\Pictures\bluestack screenshots\Screenshot_2025.01.23_15.12.37.676.png">
+![Screenshot_2025 01 23_15 12 37 676](https://github.com/user-attachments/assets/b1b0f191-15d8-4b65-8fce-0a5b9002590d)
 • Medication Details Screen:
-<img src="C:\Users\Acer\OneDrive\Pictures\bluestack screenshots\Screenshot_2025.01.23_15.13.26.092.png">
+![Screenshot_2025 01 23_15 13 26 092](https://github.com/user-attachments/assets/8426558a-bd54-4581-88ec-cb80b77e215c)
 • User Profile Screen:
-<img src="C:\Users\Acer\OneDrive\Pictures\bluestack screenshots\Screenshot_2025.01.23_15.15.28.293.png">
+![Screenshot_2025 01 23_15 15 28 293](https://github.com/user-attachments/assets/f667385d-a6ae-45ba-8b13-3b187b198d75)
+
